@@ -1,0 +1,130 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>登录</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.5 -->
+    <link rel="stylesheet" href="~/styles/bootstrap.min.css">
+    <link rel="stylesheet" href="~/styles/bootstrapValidator.min.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/styles/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="~/styles/ionicons.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/styles/AdminLTE.min.css">
+    <!-- iCheck -->
+    <link rel="stylesheet" href="~/styles/blue.css">
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="~/scripts/html5shiv.min.js"></script>
+        <script src="~/scripts/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="hold-transition login-page">
+    <div class="login-box" style="box-shadow:-20px -20px 20px RGB(54,127,169);">
+        <div class="login-box-body">
+            <p class="login-box-msg" style="color:RGB(54,127,169);"><b>登录页面</b></p>
+            <form asp-action="Login" asp-controller="Account" method="post" id="defaultForm">
+                <div class="form-group has-feedback">
+                    <input type="text" class="form-control" id="username" name="username" placeholder="用户名">
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="密码">
+                </div>
+                <div class="row form-group">
+                    <div class="col-xs-12">
+                        <button type="submit" id="btnLogin" class="btn btn-primary btn-block btn-flat">登录</button>
+                    </div><!-- /.col -->
+                </div>
+            </form>
+            <div style="height:10px;"></div>
+            <a asp-action="Forget" asp-controller="Account">忘记密码</a><br>
+            <a asp-action="Register" asp-controller="Account" class="text-center">立刻注册成为会员</a>
+        </div><!-- /.login-box-body -->
+    </div><!-- /.login-box -->
+    <!-- jQuery 2.1.4 -->
+    <script src="~/scripts/jQuery-2.1.4.min.js"></script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src="~/scripts/bootstrap.min.js"></script>
+    <script src="~/scripts/bootstrapValidator.min.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        $('#defaultForm').bootstrapValidator({
+            message: '这个值没有被验证',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                username: {
+                    message: '用户名还没有验证',
+                    validators: {
+                        notEmpty: {
+                            message: '用户名不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 16,
+                            message: '用户名长度在1到16位之间'
+                        }
+                    }
+                },
+                password: {
+                    message: '密码还没有验证',
+                    validators: {
+                        notEmpty: {
+                            message: '密码不能为空'
+                        },
+                        stringLength: {
+                            min: 6,
+                            max: 16,
+                            message: '密码长度在6到16之间'
+                        },
+                        //regexp: {
+                        //    regexp: /^(?![0-9a-z]+$)(?![0-9A-Z]+$)(?![0-9\W]+$)(?![a-z\W]+$)(?![a-zA-Z]+$)(?![A-Z\W]+$)[a-zA-Z0-9\W_]+$/,
+                        //    message: '密码必须包括至少一个数字，大写字母，小写字母，特殊字符'
+                        //},
+                        different: {
+                            field: 'username',
+                            message: '密码不能和用户名相同'
+                        }
+                    }
+                }
+            }
+
+        })
+          .on('success.form.bv', function (e) {
+              // Prevent form submission
+              e.preventDefault();
+
+              // Get the form instance
+              var $form = $(e.target);
+
+              // Get the BootstrapValidator instance
+              var bv = $form.data('bootstrapValidator');
+
+              // Use Ajax to submit form data
+              $.post("/Account/Login", $form.serialize(), function (data) {
+                  if (data == "success") {
+                      window.location.href = "/Home/Index";
+                  }
+                  else if (data == "error") {
+                      alert("用户名或密码错误");
+                  }
+                  else {
+                      alert("未知错误");
+                  }
+              });
+          });
+        });
+    </script>
+</body>
+</html>

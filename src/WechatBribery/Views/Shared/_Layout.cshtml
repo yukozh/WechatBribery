@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>微信红包</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.5 -->
+    <link rel="stylesheet" href="~/styles/bootstrap.min.css">
+    <link rel="stylesheet" href="~/styles/bootstrapValidator.min.css" />
+
+    <!-- Bootstrap Responsive -->
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/styles/font-awesome.min.css" />
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="~/styles/ionicons.css" />
+    <!-- jvectormap -->
+    <link rel="stylesheet" href="~/styles/jquery-jvectormap-1.2.2.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/styles/AdminLTE.min.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="~/styles/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="~/styles/bootstrap-colorpicker.css" />
+    <link rel="stylesheet" href="~/styles/bootstrap-timepicker.css" />
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="~/scripts/html5shiv.min.js"></script>
+        <script src="~/scripts/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+        .infotitle {
+            color: rgb(119,119,119);
+        }
+
+        .fcontent {
+            height: 200px;
+        }
+
+        .must2 {
+            color: #FF88FF;
+        }
+
+        .must3 {
+            color: #FF88FF;
+            font-size: 8px;
+        }
+
+        .table-title {
+            background-color: rgb(60,141,188);
+        }
+
+        .infolb {
+            color: white;
+        }
+    </style>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+
+        <header class="main-header">
+
+            <!-- Logo -->
+            <a asp-action="Index" asp-controller="Home" class="logo">
+                <!-- mini logo for sidebar mini 50x50 pixels -->
+                <span class="logo-mini"><b>@ViewBag.SmallTitle</b></span>
+                <!-- logo for regular state and mobile devices -->
+                <span class="logo-lg"><b>@ViewBag.BigTitle</b></span>
+            </a>
+
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top" role="navigation">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <!-- Navbar Right Menu -->
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <!-- Control Sidebar Toggle Button -->
+                        <li>
+                            <a href="javascript:$('#Logout').submit()">退出</a>
+                        </li>
+                    </ul>
+                    <form asp-action="Logout" asp-controller="Account" id="Logout"></form>
+                </div>
+
+            </nav>
+        </header>
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- Sidebar user panel -->
+                <div class="user-panel">
+                    <div class="pull-left image">
+                        <img src="~/img/person.png" class="img-circle" alt="User Image">
+                    </div>
+                    <div class="pull-left info">
+                        <p><i class="fa fa-user text-warning"></i>@ViewBag.UserCurrent.Name</p>
+                        <p><i class="fa fa-star text-success">会员等级</i><i class="text-danger">Lv @ViewBag.UserCurrent.Level</i></p>
+                    </div>
+                </div>
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu">
+                    <li class="header" style="color:white;">红包管理</li>
+                    <li class="active treeview">
+                        <a href="#">
+                            <i class="fa fa-files-o"></i> <span>红包管理</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a asp-action="Index" asp-controller="Home"><i class="fa fa-circle-o"></i>后台首页</a></li>
+                            <li><a asp-action="Deliver" asp-controller="Home"><i class="fa fa-circle-o"></i>发放红包</a></li>
+                            <li><a asp-action="History" asp-controller="Home"><i class="fa fa-circle-o"></i>发放记录</a></li>
+                            <li><a asp-action="Finance" asp-controller="Home"><i class="fa fa-circle-o"></i>财务统计</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-star-o"></i>
+                            <span>用户管理</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a asp-action="Index" asp-controller="Account"><i class="fa fa-circle-o"></i> 用户列表</a></li>
+                            <li><a asp-action="Index" asp-controller="Account"><i class="fa fa-circle-o"></i> 修改密码</a></li>
+                            <li><a href="#"><i class="fa fa-circle-o"></i> 注销登录</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+        <div>
+            @RenderBody()
+        </div>
+
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b id="current-time"></b>
+            </div>
+            <strong>
+                Copyright &copy; @DateTime.Now.Year
+                <a href="http://www.1234.sh" target="_blank">Pomelo Foundation</a>.
+            </strong> All rights reserved.
+        </footer>
+
+
+    </div><!-- ./wrapper -->
+    <!-- jQuery 2.1.4 -->
+    <script src="~/scripts/jQuery-2.1.4.min.js"></script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src="~/scripts/bootstrap.min.js"></script>
+    <script src="~/scripts/bootstrapValidator.min.js"></script>
+    <!-- FastClick -->
+    <script src="~/scripts/fastclick.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/scripts/app.js"></script>
+    <script src="~/scripts/daterangepicker.js"></script>
+    <script src="~/scripts/bootstrap-colorpicker.js"></script>
+    <script src="~/scripts/bootstrap-timepicker.js"></script>
+    <!-- Sparkline -->
+    <script src="~/scripts/jquery.sparkline.min.js"></script>
+    <!-- jvectormap -->
+    <script src="~/scripts/jquery-jvectormap-1.2.2.min.js"></script>
+    <script src="~/scripts/jquery-jvectormap-world-mill-en.js"></script>
+    <!-- SlimScroll 1.3.0 -->
+    <script src="~/scripts/jquery.slimscroll.min.js"></script>
+    <!-- ChartJS 1.0.1 -->
+    <script src="~/scripts/Chart.min.js"></script>
+    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+    <script src="~/scripts/pages/dashboard2.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="~/scripts/demo.js"></script>
+</body>
+</html>
