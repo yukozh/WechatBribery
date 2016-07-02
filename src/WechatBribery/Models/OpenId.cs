@@ -18,5 +18,9 @@ namespace WechatBribery.Models
         public DateTime AccessTokenExpire { get; set; }
 
         public DateTime RefreshTokenExpire { get; set; }
+
+        public string NickName { get; set; }
+
+        public string AvatarUrl { get; set; }
     }
 }

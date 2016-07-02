@@ -30,7 +30,11 @@
     <!--[if lt IE 9]>
         <script src="~/scripts/html5shiv.min.js"></script>
         <script src="~/scripts/respond.min.js"></script>
-    <![endif]-->
+    <![endif]-->    
+    <!-- jQuery 2.1.4 -->
+    <script src="~/scripts/jQuery-2.1.4.min.js"></script>
+    <script src="~/scripts/jquery.signalr-2.0.3.js"></script>
+    <script src="~/signalr/hubs"></script>
     <style type="text/css">
         .infotitle {
             color: rgb(119,119,119);
@@ -57,6 +61,7 @@
             color: white;
         }
     </style>
+    <link href="~/styles/style.css" rel="stylesheet" />
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">
@@ -68,7 +73,7 @@
                 <!-- mini logo for sidebar mini 50x50 pixels -->
                 <span class="logo-mini"><b>@ViewBag.SmallTitle</b></span>
                 <!-- logo for regular state and mobile devices -->
-                <span class="logo-lg"><b>@ViewBag.BigTitle</b></span>
+                <span class="logo-lg"><b>微信红包</b></span>
             </a>
 
             <!-- Header Navbar: style can be found in header.less -->
@@ -97,11 +102,10 @@
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
                     <div class="pull-left image">
-                        <img src="~/img/person.png" class="img-circle" alt="User Image">
+                        <img src="~/images/person.png" class="img-circle" alt="User Image">
                     </div>
                     <div class="pull-left info">
-                        <p><i class="fa fa-user text-warning"></i>@ViewBag.UserCurrent.Name</p>
-                        <p><i class="fa fa-star text-success">会员等级</i><i class="text-danger">Lv @ViewBag.UserCurrent.Level</i></p>
+                        <p><i class="fa fa-user text-warning"></i>@User.Current.UserName</p>
                     </div>
                 </div>
                 <!-- sidebar menu: : style can be found in sidebar.less -->
@@ -115,8 +119,7 @@
                         <ul class="treeview-menu">
                             <li><a asp-action="Index" asp-controller="Home"><i class="fa fa-circle-o"></i>后台首页</a></li>
                             <li><a asp-action="Deliver" asp-controller="Home"><i class="fa fa-circle-o"></i>发放红包</a></li>
-                            <li><a asp-action="History" asp-controller="Home"><i class="fa fa-circle-o"></i>发放记录</a></li>
-                            <li><a asp-action="Finance" asp-controller="Home"><i class="fa fa-circle-o"></i>财务统计</a></li>
+                            <li><a asp-action="History" asp-controller="Home"><i class="fa fa-circle-o"></i>发放历史</a></li>
                         </ul>
                     </li>
                     <li class="treeview">
@@ -136,7 +139,13 @@
             <!-- /.sidebar -->
         </aside>
         <div>
-            @RenderBody()
+            <section>
+                <div class="content-wrapper">
+                    <section class="content">
+                        @RenderBody()
+                    </section>
+                </div>
+            </section>
         </div>
 
         <footer class="main-footer">
@@ -151,8 +160,6 @@
 
 
     </div><!-- ./wrapper -->
-    <!-- jQuery 2.1.4 -->
-    <script src="~/scripts/jQuery-2.1.4.min.js"></script>
     <!-- Bootstrap 3.3.5 -->
     <script src="~/scripts/bootstrap.min.js"></script>
     <script src="~/scripts/bootstrapValidator.min.js"></script>

@@ -17,18 +17,13 @@ namespace WechatBribery.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<string> Login(string username, string password)
         {
             var result = await SignInManager.PasswordSignInAsync(username, password, false, false);
             if (result.Succeeded)
-                return RedirectToAction("Index", "Home");
+                return "success";
             else
-                return Prompt(x =>
-                {
-                    x.Title = "登录失败";
-                    x.Details = "用户名或密码不正确，请返回重新登录！";
-                    x.StatusCode = 401;
-                });
+                return "error";
         }
 
         [HttpPost]

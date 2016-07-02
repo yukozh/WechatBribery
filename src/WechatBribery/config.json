@@ -1,10 +1,10 @@
 ﻿{
   "WeChat": {
     "AppId": "",
-    "BaseUrl": "",
     "Secret": "",
     "MchId": "",
     "SignKey": "",
-    "WeChat:TransferDescription": ""
-  }
+    "TransferDescription": "红包"
+  },
+  "Ip": ""
 }

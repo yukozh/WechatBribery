@@ -13,17 +13,19 @@ namespace WechatBribery.Models
 
         public DbSet<OpenId> OpenIds { get; set; }
 
-        public DbSet<Delivery> Deliveries { get; set; }
+        public DbSet<Bribery> Briberies { get; set; }
+
+        public DbSet<Activity> Activities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<Delivery>(e =>
+            builder.Entity<Bribery>(e =>
             {
-                e.HasIndex(x => x.Time);
+                e.HasIndex(x => x.DeliverTime);
+                e.HasIndex(x => x.ReceivedTime);
                 e.HasIndex(x => x.Price);
-                e.HasIndex(x => x.IsReceived);
             });
         }
     }

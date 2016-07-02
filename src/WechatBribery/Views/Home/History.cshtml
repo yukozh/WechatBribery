@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Activity>
+@{ 
+    ViewBag.Title = "历史活动";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>活动名称</th>
+            <th>状态</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>总金额</th>
+            <th>红包数</th>
+            <th>中奖率</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var x in Model)
+        {
+            <tr>
+                <td>@x.Title</td>
+                @if (x.End.HasValue)
+                {
+                    <td><span class="label label-default">已经结束</span></td>
+                }
+                else
+                {
+                    <td><span class="label label-danger">正在进行</span></td>
+                }
+                <td>@x.Begin</td>
+                <td>@x.End</td>
+                <td>￥@((x.Price / 100.0).ToString("0.00"))</td>
+                <td>@x.BriberiesCount</td>
+                <td>@((x.Ratio * 100).ToString("0.00"))%</td>
+                <td>
+                    <a asp-action="Activity" asp-controller="Home" asp-route-id="@x.Id">查看详情</a>
+                    <a asp-action="Export" asp-controller="Home" asp-route-id="@x.Id">导出报表</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@Html.Paging("post-nav-page", "post-nav-page-current", "post-nav", null, new[] { "raw" })

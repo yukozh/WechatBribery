@@ -1,0 +1,83 @@
+﻿@{ 
+    ViewBag.Title = "发放红包";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<table class="table table-bordered detail-table">
+    <tr>
+        <td class="row-title">活动名称</td>
+        <td><input id="txtTitle" type="text" name="title" class="form-control" style="width: 50%;display:inline-block" /></td>
+    </tr>
+    <tr>
+        <td class="row-title">中奖率</td>
+        <td><input id="txtRatio" type="text" name="ratio" class="form-control" value="100.0" style="width: 50%;display:inline-block" />%</td>
+    </tr>
+    <tr>
+        <td class="row-title">红包设定</td>
+        <td>
+            <a href="javascript:AddFixedBribery();">添加固定金额红包</a>
+            &nbsp;&nbsp;&nbsp;
+            <a href="javascript:AddRangeBribery();">添加区间金额红包</a>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>红包类型</th>
+                        <th>金额</th>
+                        <th>个数</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="rule-list">
+
+                </tbody>
+            </table>
+        </td>
+    </tr>
+</table>
+<p><input type="button" id="btnDeliver" class="btn btn-primary" value="开始发放" /></p>
+<script>
+    function removeRule(dom)
+    {
+        $(dom).parent('td').parent('tr').remove();
+    }
+
+    function AddFixedBribery()
+    {
+        $('#rule-list').append('<tr><td>固定金额</td><td><input type="textbox" class="form-control price" value="0.00" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+    }
+
+    function AddRangeBribery()
+    {
+        $('#rule-list').append('<tr><td>区间金额</td><td><input style="width: 40%; display:inline-block" type="textbox" class="form-control price-from" value="0.00" /> ~ <input style="width: 40%; display:inline-block" type="textbox" class="form-control price-to" value="0.00" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+    }
+
+    $('#btnDeliver').click(function () {
+        var rules = [];
+        var rulesDom = $('#rule-list tr');
+        if (rulesDom.length == 0)
+            alert("非法操作");
+        for (var i = 0; i < rulesDom.length; i++) {
+            if ($(rulesDom[i]).find('.price').length > 0)
+                rules.push({
+                    From: parseInt(parseFloat($(rulesDom[i]).find('.price').val()) * 100),
+                    To: parseInt(parseFloat($(rulesDom[i]).find('.price').val()) * 100),
+                    Count: $(rulesDom[i]).find('.count').val()
+                });
+            else
+                rules.push({
+                    From: parseInt(parseFloat($(rulesDom[i]).find('.price-from').val()) * 100),
+                    To: parseInt(parseFloat($(rulesDom[i]).find('.price-to').val()) * 100),
+                    Count: $(rulesDom[i]).find('.count').val()
+                });
+        }
+
+        $.post('/Home/Deliver', {
+            Title: $('#txtTitle').val(),
+            Ratio: parseFloat($('#txtRatio').val()) / 100,
+            Rules: JSON.stringify(rules)
+        }, function (id) {
+            window.location = '/Home/Activity/' + id;
+        });
+    });
+</script>

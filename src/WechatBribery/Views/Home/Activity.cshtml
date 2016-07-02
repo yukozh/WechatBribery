@@ -1,0 +1,127 @@
+﻿@model Activity
+@{ 
+    ViewBag.Title = Model.Title;
+}
+
+<h2>
+    @ViewBag.Title 
+    @if (Model.End.HasValue)
+    {
+        <span id="status" class="label label-default">已经结束</span>
+    }
+    else
+    {
+        <span id="status" class="label label-danger">正在进行</span>
+    }
+</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>开始时间</th>
+            <th>当前领取钱数</th>
+            <th>本轮总钱数</th>
+            <th>当前领取红包数</th>
+            <th>本轮总红包数</th>
+            <th>中奖率</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="time"></td>
+            <td><span class="price">@((ViewBag.Price / 100.0).ToString("0.00"))</span>元</td>
+            <td><span class="">@((Model.Price / 100.0).ToString("0.00"))</span>元</td>
+            <td><span class="amount">@ViewBag.Amount</span>个</td>
+            <td><span class="">@Model.BriberiesCount</span>个</td>
+            <td>@((Model.Ratio * 100).ToString("0.00"))%</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>红包分发规则</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>类型</th>
+            <th>金额（元）</th>
+            <th>数量（个）</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var x in Newtonsoft.Json.JsonConvert.DeserializeObject<List<Rule>>(Model.RuleJson))
+        {
+            <tr>
+                @if (x.From == x.To)
+                { 
+                    <td>固定金额</td>
+                    <td>￥@((x.From / 100.0).ToString("0.00"))</td>
+                }
+                else
+                {
+                    <td>区间金额</td>
+                    <td>￥@((x.From / 100.0).ToString("0.00")) ~ ￥@((x.To / 100.0).ToString("0.00"))</td>
+                }
+                <td>@x.Count</td>
+            </tr>
+
+        }
+    </tbody>
+</table>
+
+<h3>实时红包领取详情</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>头像</th>
+            <th>昵称</th>
+            <th>金额</th>
+            <th>时间</th>
+        </tr>
+    </thead>
+    <tbody id="realtime-list">
+        @foreach(Bribery x in ViewBag.Briberies)
+        {
+            <tr>
+                <td>@x.OpenId</td>
+                <td><img style="width:35px;height:35px" src="@x.AvatarUrl" /></td>
+                <td>@x.NickName</td>
+                <td>￥@((x.Price / 100.0).ToString("0.00"))</td>
+                <td>@x.ReceivedTime</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    setInterval(function () {
+        var time1 = (new Date('@Model.Begin.ToString("yyyy-MM-dd HH:mm:ss")')).getTime();
+        var time2 = (new Date()).getTime();
+        var span = (time2 - time1) / 1000;
+        var secs = parseInt(span % 60);
+        var minutes = parseInt(span / 60 % 60);
+        var hours = parseInt(span / 60 / 60);
+        $('.time').html(hours + "小时" + minutes + "分" + secs + "秒");
+    }, 1000);
+
+    var hub = $.connection.briberyHub;
+
+    hub.client.onDelivered = function (data) {
+        console.error(data);
+        $('.price').html(parseFloat($('.price').html()) + parseFloat(data.price / 100.0));
+        $('.amount').html(parseInt($('.amount').html()) + 1);
+        $('#realtime-list').prepend('<tr><td>' + data.id + '</td><td><img style="width:35px;height:35px" src="' + data.avatar + '" /></td><td>' + data.name + '</td><td>￥' + (data.price / 100.0).toFixed(2) + '</td><td>' + new Date(data.time) + '</td></tr>');
+    }
+
+    hub.client.onActivityEnd = function () {
+        $('#status').html("已经结束");
+        $('#status').removeClass('label-danger');
+        $('#status').addClass('label-default');
+    }
+
+    $.connection.hub.start(null, function () {
+        hub.server.join('@Model.Id');
+    });
+</script>

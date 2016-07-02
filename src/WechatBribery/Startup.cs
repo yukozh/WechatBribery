@@ -19,6 +19,8 @@ namespace WechatBribery
             services.AddSignalR();
             services.AddLogging();
             services.AddConfiguration(out Config);
+            services.AddSmartCookies();
+            services.AddSmartUser<IdentityUser, string>();
 
             services.AddDbContext<BriberyContext>(x => x.UseSqlite("Data source=wechat.db"));
 
@@ -37,7 +39,9 @@ namespace WechatBribery
 
         public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole();
+            loggerFactory.AddConsole(LogLevel.Warning, true);
+            app.UseSignalR();
+            app.UseIdentity();
             app.UseDeveloperExceptionPage();
             app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();

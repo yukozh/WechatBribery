@@ -1,0 +1,9 @@
+﻿body {
+    margin: 0;
+    background-image: url(../images/main.png);
+    background-color: #fefae1;
+    background-repeat: no-repeat;
+    background-position: top;
+    background-size: 100% auto;
+    height: 100%;
+}

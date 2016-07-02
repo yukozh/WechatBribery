@@ -11,7 +11,8 @@
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "Microsoft.EntityFrameworkCore.Sqlite": "1.0.0",
     "Pomelo.AspNetCore.Extensions": "1.0.0",
-    "Pomelo.AspNetCore.TimedJob": "1.0.0"
+    "Pomelo.AspNetCore.TimedJob": "1.0.0",
+    "Pomelo.Data.Excel": "1.0.0"
   },
 
   "tools": {
@@ -19,11 +20,6 @@
   },
 
   "frameworks": {
-    "net451": {
-      "frameworkAssemblies": {
-        "System.Security": "4.0.0.0"
-      }
-    },
     "netcoreapp1.0": {
       "dependencies": {
         "Microsoft.NETCore.App": {
@@ -53,7 +49,10 @@
   "publishOptions": {
     "include": [
       "wwwroot",
-      "web.config"
+      "Views",
+      "web.config",
+      "config.json",
+      "apiclient_cert.p12"
     ]
   },
 
