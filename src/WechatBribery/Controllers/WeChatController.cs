@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WechatBribery.Controllers
 {
-    public class WeChatController : Controller
+    public class WeChatController : BaseController
     {
         public IActionResult Index()
         {
-            return View();
+            var activity = DB.Activities.LastOrDefault();
+            return View(activity);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿@{
+﻿@model Activity
+@{
     Layout = null;
 }
 
@@ -30,9 +31,25 @@
             margin-left: -110px;
         }
     </style>
+
+    @if (Model != null)
+    {
+        <style>
+            body {
+                background-image: url(/Home/Background/@Model.Id)!important;
+            }
+        </style>
+    }
 </head>
 <body>
-    <img src="~/images/bottom.png" style="width: 100%; position: absolute; bottom: 0; left: 0" />
+    @if (Model == null)
+    {
+        <img src="~/images/bottom.png" style="width: 100%; position: absolute; bottom: 0; left: 0" />
+    }
+    else
+    {
+        <a href="@Model.BottomUrl"><img src="/Home/Bottom/@Model.Id" style="width: 100%; position: absolute; bottom: 0; left: 0" /></a>
+    }
     <div class="alpha" style="background: rgba(0,0,0,0.8); width: 100%; height: 100%; position:absolute; left: 0; top: 0"></div>
     <div class="pending" style="top:30%; position: absolute; bottom: 0; left: 0; z-index: 10">
         <a class="close-pending" href="javascript:;" style="position: absolute;"><img src="~/images/close-2.png" style="width: 40px; height: 40px;" /></a>

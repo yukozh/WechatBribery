@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.IO;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Pomelo.Data.Excel;
@@ -26,7 +27,7 @@ namespace WechatBribery.Controllers
         }
 
         [HttpPost]
-        public IActionResult Deliver(string Title, string Rules, double Ratio)
+        public IActionResult Deliver(string Title, string Rules, double Ratio, IFormFile Background, IFormFile Bottom, string BottomUrl, [FromServices] IHostingEnvironment env)
         {
             // 存储活动信息
             var act = new Activity
@@ -35,8 +36,20 @@ namespace WechatBribery.Controllers
                 Begin = DateTime.Now,
                 RuleJson = Rules,
                 Title = Title,
-                Ratio = Ratio
+                Ratio = Ratio,
+                BottomUrl = BottomUrl
             };
+
+            if (Background != null && Background.Length > 0)
+                act.Background = Background.ReadAllBytes();
+            else
+                act.Background = System.IO.File.ReadAllBytes(Path.Combine(env.WebRootPath, "images", "main.png"));
+
+            if (Bottom != null && Bottom.Length > 0)
+                act.Bottom = Bottom.ReadAllBytes();
+            else
+                act.Bottom = System.IO.File.ReadAllBytes(Path.Combine(env.WebRootPath, "images", "bottom.png"));
+
             DB.Activities.Add(act);
             DB.SaveChanges();
 
@@ -61,7 +74,7 @@ namespace WechatBribery.Controllers
             act.BriberiesCount = DB.Briberies.Count(x => x.ActivityId == act.Id);
             DB.SaveChanges();
 
-            return Content(act.Id.ToString());
+            return RedirectToAction("Activity", "Home", new { id = act.Id });
         }
 
         public IActionResult Activity(Guid id)
@@ -110,6 +123,24 @@ namespace WechatBribery.Controllers
             var ret = System.IO.File.ReadAllBytes(path);
             System.IO.File.Delete(path);
             return File(ret, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", activity.Title + ".xlsx");
+        }
+
+        public IActionResult Background(Guid id)
+        {
+            return File(DB.Activities.Single(x => x.Id == id).Background, "image/png");
+        }
+
+        public IActionResult Bottom(Guid id)
+        {
+            return File(DB.Activities.Single(x => x.Id == id).Bottom, "image/png");
+        }
+
+        [HttpPost]
+        public IActionResult Stop(Guid id)
+        {
+            var act = DB.Activities.Single(x => x.Id == id);
+            act.End = DateTime.Now;
+            return RedirectToAction("Activity", "Home", new { id = id });
         }
     }
 }

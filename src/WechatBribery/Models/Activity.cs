@@ -20,5 +20,11 @@ namespace WechatBribery.Models
         public long BriberiesCount { get; set; }
 
         public long Price { get; set; }
+
+        public byte[] Background { get; set; }
+
+        public byte[] Bottom { get; set; }
+
+        public string BottomUrl { get; set; }
     }
 }
