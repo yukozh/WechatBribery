@@ -37,18 +37,19 @@ namespace WechatBribery.Controllers
             if (prize.ReceivedTime.HasValue)
                 return Content("Error");
 
-            // 3. Update deliver informations
-            var flag = await TransferMoneyAsync(prize.Id, oid.Id, prize.Price, Startup.Config["WeChat:TransferDescription"]);
-            if (!flag)
+            // 3. Check deliver count
+            if (DB.Briberies.Count(x => x.OpenId == oid.Id) >= 10)
                 return View("Exceeded");
 
+            // 4. Update deliver informations
+            await TransferMoneyAsync(prize.Id, oid.Id, prize.Price, Startup.Config["WeChat:TransferDescription"]);
             prize.ReceivedTime = DateTime.Now;
             prize.OpenId = oid.Id;
             prize.NickName = oid.NickName;
             prize.AvatarUrl = oid.AvatarUrl;
             DB.SaveChanges();
 
-            // 4. Push deliver information to administrators
+            // 5. Push deliver information to administrators
             Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new { time = prize.ReceivedTime, avatar = oid.AvatarUrl, name = oid.NickName, price = prize.Price, id = oid.Id });
 
             return View("Bribery", prize);

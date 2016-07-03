@@ -18,7 +18,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th>开始时间</th>
+            <th>活动用时</th>
             <th>当前领取钱数</th>
             <th>本轮总钱数</th>
             <th>当前领取红包数</th>
@@ -96,9 +96,16 @@
 </table>
 
 <script>
-    setInterval(function () {
+    var timer;
+    var endTime = @(Model.End.HasValue ? "new Date(" + Model.End.Value.ToString("yyyy-MM-dd HH:mm:ss") + ")" : null);
+    timer = setInterval(function () {
         var time1 = (new Date('@Model.Begin.ToString("yyyy-MM-dd HH:mm:ss")')).getTime();
         var time2 = (new Date()).getTime();
+        if (endTime)
+        {
+            time2 = endTime;
+            clearInterval(timer);
+        }
         var span = (time2 - time1) / 1000;
         var secs = parseInt(span % 60);
         var minutes = parseInt(span / 60 % 60);
@@ -123,5 +130,6 @@
 
     $.connection.hub.start(null, function () {
         hub.server.join('@Model.Id');
+        endTime = new Date();
     });
 </script>
