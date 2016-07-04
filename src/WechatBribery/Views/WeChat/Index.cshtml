@@ -33,9 +33,8 @@
         }
 
     </style>
-    </style>
 
-    @if (Model != null)
+  @if (Model != null)
     {
         <style>
             body {
@@ -43,14 +42,17 @@
             }
         </style>
     }
+   
 </head>
 <body>
-
-	  <div class="shake_box">
-           <div class="shakTop"></div>
-			<div class="shakBottom"></div>
-        </div>
-	
+  @if (Model == null)
+    {
+        <img src="~/images/bottom.png" style="width: 100%; position: absolute; bottom: 0; left: 0" />
+    }
+    else
+    {
+        <a href="@Model.BottomUrl"><img src="/Home/Bottom/@Model.Id" style="width: 100%; position: absolute; bottom: 0; left: 0" /></a>
+    }
 	
     <div class="alpha" style="background: rgba(0,0,0,0.8); width: 100%; height: 100%; position:absolute; left: 0; top: 0"></div>
     <div class="pending" style="top:30%; position: absolute; bottom: 0; left: 0; z-index: 10">
@@ -128,13 +130,8 @@
                 var speed = Math.abs(curShakeX + curShakeY + curShakeZ - lastShakeX - lastShakeY - lastShakeZ) / diffTime * 10000;
 
                 if (speed > shakeThreshold) {
-				 
-						$('.shake_box').addClass('shake_box_focus');
-					
-                 var shakeTimeout = setTimeout(function(){
-							$('.shake_box').removeClass('shake_box_focus');					
-						},1300);
-                   clearTimeout(shakeTimeout);
+				    audioAutoPlay('musicBox');
+				  
                     if (lock) return;
                     lock = true;
                     //TODO 相关方法，比如：
@@ -144,7 +141,7 @@
                             if (data == "NO") {
 						setTimeout(function(){
                                 $('.alpha').show();
-                                $('.pending').show();},1300);  clearTimeout(shakeTimeout);
+                                $('.pending').show();},1300)
 						
                             } else if (data == "RETRY") {
 						setTimeout(function(){
@@ -158,20 +155,49 @@
                             }
                         });
                   
-                }
+                
 
                 lastShakeX = curShakeX;
                 lastShakeY = curShakeY;
                 lastShakeZ = curShakeZ;
             }
         }
+}
+var flag=true;
 
+function audioAutoPlay(musicBox){
+   if(flag){
+  
+   $('.shake_box').addClass('shake_box_focus');
+	clearTimeout(shakeTimeout);
+   var shakeTimeout = setTimeout(function(){
+	$('.shake_box').removeClass('shake_box_focus');					
+		},1300);
+		
+   var audio = document.getElementById("musicBox"),
+        play = function(){
+        audio.play();
+    };
+    audio.play();
+    document.addEventListener("WeixinJSBridgeReady", function () {//微信
+       play();
+    }, false);	
+	 flag=false;
+   }
 
-        for (var key in shake_options) {
-            if (shake_options.hasOwnProperty(key) && (key in shakeAudio)) {
-                shakeAudio[key] = shake_options[key];
-            }
-        }
-    </script>
+  return false;
+  
+}
+
+</script>
+<audio style="display:none;" id="musicBox" preload="metadata"  controls  
+ src="~/sounds/shake_sound.mp3">  
+ </audio>
+ <div class="shake_box" >
+   <div class="shakTop"></div>
+   <div class="shakBottom"></div>
+ </div>
+	
+	
 </body>
 </html>

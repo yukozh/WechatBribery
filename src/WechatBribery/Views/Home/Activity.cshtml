@@ -35,14 +35,7 @@
             <td><span class="amount">@ViewBag.Amount</span> 个</td>
             <td><span class="">@Model.BriberiesCount</span> 个</td>
             <td>@((Model.Ratio * 100).ToString("0.00"))%</td>
-            @if (!Model.End.HasValue)
-            {
-                <td><span class="attend">@ViewBag.Attend</span> 人</td>
-            }
-            else
-            {
-                <td>@Model.Attend 人</td>
-            }
+            <td><span class="attend">@Model.Attend</span> 人</td>
         </tr>
     </tbody>
 </table>
@@ -130,7 +123,7 @@
     var hub = $.connection.briberyHub;
 
     hub.client.onDelivered = function (data) {
-        $('.price').html(parseFloat($('.price').html()) + parseFloat(data.price / 100.0).toFixed(2));
+        $('.price').html(parseFloat(($('.price').html()) + parseFloat(data.price / 100.0)).toFixed(2));
         $('.amount').html(parseInt($('.amount').html()) + 1);
         $('#realtime-list').prepend('<tr><td>' + data.id + '</td><td><img style="width:35px;height:35px" src="' + data.avatar + '" /></td><td>' + data.name + '</td><td>￥' + (data.price / 100.0).toFixed(2) + '</td><td>' + new Date(data.time) + '</td></tr>');
     }

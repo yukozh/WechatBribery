@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Caching.Memory;
 using Pomelo.Data.Excel;
 using WechatBribery.Models;
 using static Newtonsoft.Json.JsonConvert;
@@ -78,15 +77,11 @@ namespace WechatBribery.Controllers
             return RedirectToAction("Activity", "Home", new { id = act.Id });
         }
 
-        public IActionResult Activity(Guid id, [FromServices] IMemoryCache Cache)
+        public IActionResult Activity(Guid id)
         {
             var act = DB.Activities.Single(x => x.Id == id);
             ViewBag.Price = DB.Briberies.Where(x => x.ActivityId == id && x.ReceivedTime.HasValue).Sum(x => x.Price);
             ViewBag.Amount = DB.Briberies.Count(x => x.ActivityId == id && x.ReceivedTime.HasValue);
-            long cnt;
-            if (!Cache.TryGetValue<long>(act.Id, out cnt))
-                cnt = 0;
-            ViewBag.Attend = cnt;
             ViewBag.Briberies = DB.Briberies
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
                 .OrderByDescending(x => x.ReceivedTime)
@@ -121,16 +116,8 @@ namespace WechatBribery.Controllers
                 foreach(var x in src)
                     sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { x.OpenId ?? "", x.NickName ?? "", (x.Price / 100.0).ToString("0.00"), x.ReceivedTime.Value.ToString("yyyy-MM-dd HH:mm:ss") });
                 sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row());
-                if (activity.End.HasValue)
-                {
-                    sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { "未领取金额（元）", "未领取红包（个）", "总参与人数" });
-                    sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { ((activity.Price - src.Sum(x => x.Price)) / 100.0).ToString("0.00"), nonawarded.ToString(), activity.Attend.ToString() });
-                }
-                else
-                {
-                    sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { "未领取金额（元）", "未领取红包（个）" });
-                    sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { ((activity.Price - src.Sum(x => x.Price)) / 100.0).ToString("0.00"), nonawarded.ToString() });
-                }
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { "未领取金额（元）", "未领取红包（个）", "总参与人数" });
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { ((activity.Price - src.Sum(x => x.Price)) / 100.0).ToString("0.00"), nonawarded.ToString(), activity.Attend.ToString() });
                 sheet1.SaveChanges();
             }
             var ret = System.IO.File.ReadAllBytes(path);
@@ -149,14 +136,10 @@ namespace WechatBribery.Controllers
         }
 
         [HttpPost]
-        public IActionResult Stop(Guid id, [FromServices] IMemoryCache Cache)
+        public IActionResult Stop(Guid id)
         {
             var act = DB.Activities.Single(x => x.Id == id);
             act.End = DateTime.Now;
-            long cnt;
-            if (!Cache.TryGetValue<long>(act.Id, out cnt))
-                cnt = 0;
-            act.Attend = cnt;
             DB.SaveChanges();
             return RedirectToAction("Activity", "Home", new { id = id });
         }

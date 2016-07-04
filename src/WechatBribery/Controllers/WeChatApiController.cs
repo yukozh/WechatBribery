@@ -40,7 +40,12 @@ namespace WechatBribery.Controllers
             // 3. Check deliver count
             var beg = DateTime.Now.Date;
             if (DB.Briberies.Count(x => x.OpenId == oid.Id && x.ReceivedTime.HasValue && x.ReceivedTime.Value >= beg) >= 10)
+            {
+                prize.ReceivedTime = null;
+                prize.DeliverTime = null;
+                DB.SaveChanges();
                 return View("Exceeded");
+            }
 
             // 4. Update deliver informations
             await TransferMoneyAsync(prize.Id, oid.Id, prize.Price, Startup.Config["WeChat:TransferDescription"]);

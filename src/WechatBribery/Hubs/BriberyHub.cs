@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.EntityFrameworkCore;
 using WechatBribery.Models;
 
 namespace WechatBribery.Hubs
@@ -18,12 +18,7 @@ namespace WechatBribery.Hubs
                 return "NO";
 
             // 参与人数缓存
-            var Cache = Context.Request.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
-            long cnt;
-            if (!Cache.TryGetValue(activity.Id, out cnt))
-                cnt = 0;
-            cnt++;
-            Cache.Set(activity.Id, cnt);
+            DB.Database.ExecuteSqlCommandAsync("UPDATE Activities SET Attend = Attend + 1; ");
             Clients.Group(activity.Id.ToString()).OnShaked();
 
             // 抽奖
@@ -39,7 +34,6 @@ namespace WechatBribery.Hubs
                 if (prize == null) // 没有红包了
                 {
                     activity.End = DateTime.Now;
-                    activity.Attend = cnt;
                     DB.SaveChanges();
                     Clients.Group(activity.Id.ToString()).OnActivityEnd();
                     return "RETRY";
@@ -51,7 +45,6 @@ namespace WechatBribery.Hubs
                 if (DB.Briberies.Count(x => x.ActivityId == activity.Id && !x.DeliverTime.HasValue) == 0)
                 {
                     activity.End = DateTime.Now;
-                    activity.Attend = cnt;
                     DB.SaveChanges();
                     Clients.Group(activity.Id.ToString()).OnActivityEnd();
                 }
