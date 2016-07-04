@@ -26,5 +26,7 @@ namespace WechatBribery.Models
         public byte[] Bottom { get; set; }
 
         public string BottomUrl { get; set; }
+
+        public long Attend { get; set; }
     }
 }

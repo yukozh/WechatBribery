@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Caching.Memory;
 using WechatBribery.Models;
 using static Newtonsoft.Json.JsonConvert;
 using System.Threading.Tasks;
@@ -14,11 +15,22 @@ namespace WechatBribery.Hubs
     {
         public string Shake()
         {
+            // 获取活动信息
             var DB = Context.Request.HttpContext.RequestServices.GetRequiredService<BriberyContext>();
             var activity = DB.Activities.Where(x => x.Begin <= DateTime.Now && !x.End.HasValue).FirstOrDefault();
             if (activity == null)
                 return "NO";
 
+            // 参与人数缓存
+            var Cache = Context.Request.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
+            long cnt;
+            if (!Cache.TryGetValue(activity.Id, out cnt))
+                cnt = 0;
+            cnt++;
+            Cache.Set(activity.Id, cnt);
+            Clients.Group(activity.Id.ToString()).OnShaked();
+
+            // 抽奖
             var rand = new Random();
             var num = rand.Next(0, 10000);
 
@@ -31,6 +43,7 @@ namespace WechatBribery.Hubs
                 if (prize == null) // 没有红包了
                 {
                     activity.End = DateTime.Now;
+                    activity.Attend = cnt;
                     DB.SaveChanges();
                     Clients.Group(activity.Id.ToString()).OnActivityEnd();
                     return "RETRY";

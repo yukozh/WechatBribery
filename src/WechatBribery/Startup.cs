@@ -21,6 +21,7 @@ namespace WechatBribery
             services.AddConfiguration(out Config);
             services.AddSmartCookies();
             services.AddSmartUser<IdentityUser, string>();
+            services.AddMemoryCache();
 
             services.AddDbContext<BriberyContext>(x => x.UseSqlite("Data source=wechat.db"));
 

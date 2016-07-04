@@ -1,0 +1,85 @@
+﻿*{padding:0;margin:0;-webkit-tap-highlight-color:rgba(0,0,0,0);text-decoration:none;}
+		   .zhezhaoceng{width:100%;height:100%;background:rgba(52, 52, 52, 0.8);position:absolute;z-index:9998}
+			.shakTop {
+				background:url(../images/top.jpg) no-repeat;background-size:100% 100%;
+				position : fixed;
+				width : 100%;
+			    height: 50%;
+			}
+			.shakBottom {
+				background:url(../images/bottom.jpg) no-repeat;background-size:100% 100%;
+				position : fixed;
+				width : 100%;
+				height: 50%;
+			}
+			.shakTop    {top    : 0;}
+			.shakBottom {bottom : 0;}
+
+			.shakTop span,.shakBottom span{
+				
+			}
+			.shakTop    span{bottom : 0;}
+			.shakBottom span{
+			
+				top : 0;
+			}
+
+			.shake_box_focus .shakTop{
+				animation        : shakTop 1s 1 linear;
+				-moz-animation   : shakTop 1s 1 linear;
+				-webkit-animation: shakTop 1s 1 linear;
+				-ms-animation    : shakTop 1s 1 linear;
+				-o-animation     : shakTop 1s 1 linear;
+			}
+			.shake_box_focus .shakBottom{
+				animation        : shakBottom 1s 1 linear;
+				-moz-animation   : shakBottom 1s 1 linear;
+				-webkit-animation: shakBottom 1s 1 linear;
+				-ms-animation    : shakBottom 1s 1 linear;
+				-o-animation     : shakBottom 1s 1 linear;
+			}
+
+			/* 向上拉动画效果 */
+			@-webkit-keyframes shakTop   {
+				0%   {top: 0;}
+				50%  {top: -200px;}
+				100% {top: 0;}
+			}
+			@-moz-keyframes shakTop      {
+				0%   {top: 0;}
+				50%  {top: -200px;}
+				100% {top: 0;}
+			}
+			@-ms-keyframes shakTop       {
+				0%   {top: 0;}
+				50%  {top: -200px;}
+				100% {top: 0;}
+			}
+			@-o-keyframes shakTop        { 
+				0%   {top: 0;}
+				50%  {top: -200px;}
+				100% {top: 0;}
+			}
+			
+			/* 向下拉动画效果 */
+			@-webkit-keyframes shakBottom   {
+				0%   {bottom: 0;}
+				50%  {bottom: -200px;}
+				100% {bottom: 0;}
+			}
+			@-moz-keyframes shakBottom      {
+				0%   {bottom: 0;}
+				50%  {bottom: -200px;}
+				100% {bottom: 0;}
+			}
+			@-ms-keyframes shakBottom       {
+				0%   {bottom: 0;}
+				50%  {bottom: -200px;}
+				100% {bottom: 0;}
+			}
+			@-o-keyframes shakBottom        { 
+				0%   {bottom: 0;}
+				50%  {bottom: -200px;}
+				100% {bottom: 0;}
+			}
+			
