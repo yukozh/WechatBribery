@@ -130,7 +130,7 @@
     var hub = $.connection.briberyHub;
 
     hub.client.onDelivered = function (data) {
-        $('.price').html(parseFloat($('.price').html()) + parseFloat(data.price / 100.0).toFixed());
+        $('.price').html(parseFloat($('.price').html()) + parseFloat(data.price / 100.0).toFixed(2));
         $('.amount').html(parseInt($('.amount').html()) + 1);
         $('#realtime-list').prepend('<tr><td>' + data.id + '</td><td><img style="width:35px;height:35px" src="' + data.avatar + '" /></td><td>' + data.name + '</td><td>￥' + (data.price / 100.0).toFixed(2) + '</td><td>' + new Date(data.time) + '</td></tr>');
     }
