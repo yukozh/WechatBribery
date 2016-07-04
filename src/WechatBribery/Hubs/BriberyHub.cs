@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Caching.Memory;
 using WechatBribery.Models;
-using static Newtonsoft.Json.JsonConvert;
-using System.Threading.Tasks;
 
 namespace WechatBribery.Hubs
 {
@@ -55,6 +51,7 @@ namespace WechatBribery.Hubs
                 if (DB.Briberies.Count(x => x.ActivityId == activity.Id && !x.DeliverTime.HasValue) == 0)
                 {
                     activity.End = DateTime.Now;
+                    activity.Attend = cnt;
                     DB.SaveChanges();
                     Clients.Group(activity.Id.ToString()).OnActivityEnd();
                 }

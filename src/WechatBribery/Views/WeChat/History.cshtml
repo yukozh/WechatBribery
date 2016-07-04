@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Bribery>
+@{ 
+    Layout = null;
+}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摇一摇抽红包</title>
+    <script src="~/scripts/jQuery-2.1.4.min.js"></script>
+    <script src="~/scripts/jquery.signalr-2.0.3.js"></script>
+    <script src="~/signalr/hubs"></script>
+</head>
+<body>
+    <h2>查看大家手气</h2>
+    <table>
+        @foreach(var x in Model)
+        {
+            <tr>
+                <td><img src="@x.AvatarUrl" style="width: 30px; height: 30px;" /></td>
+                <td>@x.NickName</td>
+                <td>￥@((x.Price / 100.0).ToString("0.00"))</td>
+            </tr>
+        }
+    </table>
+</body>
+</html>

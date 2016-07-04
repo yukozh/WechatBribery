@@ -33,12 +33,13 @@ namespace WechatBribery.Controllers
             DB.SaveChanges();
 
             // 2. Find deliver informations
-            var prize = DB.Briberies.Single(x => x.Id == Guid.Parse(dtoken) );
+            var prize = DB.Briberies.Single(x => x.Id == Guid.Parse(dtoken));
             if (prize.ReceivedTime.HasValue)
                 return Content("Error");
 
             // 3. Check deliver count
-            if (DB.Briberies.Count(x => x.OpenId == oid.Id) >= 10)
+            var beg = DateTime.Now.Date;
+            if (DB.Briberies.Count(x => x.OpenId == oid.Id && x.ReceivedTime.HasValue && x.ReceivedTime.Value >= beg) >= 10)
                 return View("Exceeded");
 
             // 4. Update deliver informations
