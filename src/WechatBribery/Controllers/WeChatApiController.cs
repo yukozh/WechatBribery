@@ -36,7 +36,7 @@ namespace WechatBribery.Controllers
                 // 2. Find deliver informations
                 var prize = DB.Briberies.Single(x => x.Id == Guid.Parse(dtoken));
                 if (prize.ReceivedTime.HasValue)
-                    return Content("Error");
+                    return RedirectToAction("Index", "WeChat");
 
                 // 3. Check deliver count
                 var beg = DateTime.Now.Date;
