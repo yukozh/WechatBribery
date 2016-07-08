@@ -60,7 +60,7 @@
         <img src="~/images/pending.png" style="margin: 0 auto;width: 80%; display: block" />
     </div>
     <div class="retry" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 10">
-        <a class="close-pending" href="javascript:;" >
+        <a class="close-pending" href="javascript:;"  onclick="finsh()" >
         <img src="~/images/undrawn.png" style="margin: 0 auto;width: 100%;" /></a>
     </div>
     <div class="ok" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 10">
@@ -188,6 +188,7 @@ function audioAutoPlay(musicBox){
   return false;
   
 }
+function finsh(){self.location.reload();}
 
 </script>
 <audio style="display:none;" id="musicBox" preload="metadata"  controls  

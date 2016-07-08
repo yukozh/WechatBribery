@@ -11,17 +11,22 @@
     <script src="~/scripts/jquery.signalr-2.0.3.js"></script>
     <script src="~/signalr/hubs"></script>
 </head>
-<body>
-    <h2>查看大家手气</h2>
-    <table>
+<body style="padding:0px;margin:0px;font-family:'微软雅黑';">
+	
+   <table   border="0" cellpadding="0" cellspacing="0" width="100%">
         @foreach(var x in Model)
         {
-            <tr>
-                <td><img src="@x.AvatarUrl" style="width: 30px; height: 30px;" /></td>
-                <td>@x.NickName</td>
-                <td>￥@((x.Price / 100.0).ToString("0.00"))</td>
+            <tr >
+             <td  width="40px" style="border-bottom:1px solid #e8e8e8;padding:10px 5px">
+			 <img src="@x.AvatarUrl" style="width:40px;height:40px;border-radius:40px"  /></td>
+             <td width="30%" style="border-bottom:1px solid #e8e8e8;padding:10px 5px"><span style="display:block;color:#606060;">@x.NickName</span>
+			<span style="display:block;color:#cfcfcf;font-size:12px">@x.Time</span>
+			</td>
+            <td width="60%" style="border-bottom:1px solid #e8e8e8;padding:10px 5px"><span style="display:block;text-align:right;padding-right:10px;font-size:18px;color:#000000">￥@((x.Price / 100.0).ToString("0.00"))</span></td>
             </tr>
         }
     </table>
+
+	
 </body>
 </html>
