@@ -1,17 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 
 namespace WechatBribery.Models
 {
-    public class BriberyContext : IdentityDbContext<IdentityUser>
+    public class BriberyContext : IdentityDbContext<User>, IBlobStorageDbContext
     {
         public BriberyContext(DbContextOptions opt)
             : base(opt)
         {
-
         }
 
-        public DbSet<OpenId> OpenIds { get; set; }
+        public DbSet<PayLog> PayLogs { get; set; }
+
+        public DbSet<Blob> Blobs { get; set; }
 
         public DbSet<Bribery> Briberies { get; set; }
 
@@ -23,9 +25,26 @@ namespace WechatBribery.Models
 
             builder.Entity<Bribery>(e =>
             {
-                e.HasIndex(x => x.DeliverTime);
                 e.HasIndex(x => x.ReceivedTime);
                 e.HasIndex(x => x.Price);
+            });
+
+            builder.Entity<PayLog>(e =>
+            {
+                e.HasIndex(x => x.Price);
+                e.HasIndex(x => x.Time);
+            });
+
+            builder.Entity<Activity>(e =>
+            {
+                e.HasIndex(x => x.Price);
+                e.HasIndex(x => x.Begin);
+                e.HasIndex(x => x.End);
+            });
+
+            builder.Entity<Bribery>(e =>
+            {
+                e.HasIndex(x => x.ReceivedTime);
             });
         }
     }

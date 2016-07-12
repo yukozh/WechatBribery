@@ -57,7 +57,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach(var x in Newtonsoft.Json.JsonConvert.DeserializeObject<List<Rule>>(Model.RuleJson))
+        @foreach(var x in Newtonsoft.Json.JsonConvert.DeserializeObject<List<RuleViewModel>>(Model.RuleJson))
         {
             <tr>
                 @if (x.From == x.To)

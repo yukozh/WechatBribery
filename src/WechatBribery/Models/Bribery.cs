@@ -14,11 +14,6 @@ namespace WechatBribery.Models
         public virtual Activity Activity { get; set; }
 
         /// <summary>
-        /// 发放时间
-        /// </summary>
-        public DateTime? DeliverTime { get; set; }
-
-        /// <summary>
         /// 领取时间
         /// </summary>
         public DateTime? ReceivedTime { get; set; }

@@ -1,0 +1,30 @@
+﻿@{ 
+    ViewBag.Title = "创建用户";
+}
+
+<form asp-action="Create" asp-controller="Account" method="post">
+    <table class="table table-bordered detail-table">
+        <tr>
+            <td class="row-title">用户名</td>
+            <td><input type="text" name="username" class="form-control" /></td>
+        </tr>
+        <tr>
+            <td class="row-title">密码</td>
+            <td><input type="password" name="password" class="form-control" /></td>
+        </tr>
+        <tr>
+            <td class="row-title">角色</td>
+            <td>
+                <select name="role" class="form-control">
+                    <option value="Member">普通商户</option>
+                    <option value="Root">管理员</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="row-title">初始金额（元）</td>
+            <td><input type="text" name="balance" class="form-control" value="0.00" /></td>
+        </tr>
+    </table>
+    <input type="submit" class="btn btn-primary" value="创建" />
+</form>

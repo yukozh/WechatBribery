@@ -20,12 +20,13 @@ namespace WechatBribery
             services.AddLogging();
             services.AddConfiguration(out Config);
             services.AddSmartCookies();
-            services.AddSmartUser<IdentityUser, string>();
+            services.AddSmartUser<User, string>();
             services.AddMemoryCache();
+            services.AddSession();
 
-            services.AddDbContext<BriberyContext>(x => x.UseSqlite("Data source=wechat.db"));
+            services.AddDbContext<BriberyContext>(x => x.UseMySql("Server=localhost;database=wechat;uid=root;pwd=19931101"));
 
-            services.AddIdentity<IdentityUser, IdentityRole>(x =>
+            services.AddIdentity<User, IdentityRole>(x =>
             {
                 x.Password.RequireDigit = false;
                 x.Password.RequiredLength = 0;
@@ -41,9 +42,11 @@ namespace WechatBribery
         public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(LogLevel.Warning, true);
+            app.UseSession();
             app.UseSignalR();
             app.UseIdentity();
             app.UseDeveloperExceptionPage();
+            app.UseBlobStorage();
             app.UseMvcWithDefaultRoute();
             app.UseStaticFiles();
 

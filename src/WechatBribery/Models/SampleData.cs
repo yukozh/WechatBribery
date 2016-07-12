@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -13,9 +11,14 @@ namespace WechatBribery.Models
         public static async Task InitDB(IServiceProvider services)
         {
             var DB = services.GetRequiredService<BriberyContext>();
-            var UserManager = services.GetRequiredService<UserManager<IdentityUser>>();
+            var UserManager = services.GetRequiredService<UserManager<User>>();
+            var RoleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
             DB.Database.EnsureCreated();
-            await UserManager.CreateAsync(new IdentityUser { UserName = "admin" }, "123456");
+            await RoleManager.CreateAsync(new IdentityRole("Root"));
+            await RoleManager.CreateAsync(new IdentityRole("Member"));
+            var user = new User { UserName = "admin", Balance = 10000.00 };
+            await UserManager.CreateAsync(user, "123456");
+            await UserManager.AddToRoleAsync(user, "Root");
         }
     }
 }

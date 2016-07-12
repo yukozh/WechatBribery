@@ -4,7 +4,7 @@ using WechatBribery.Models;
 
 namespace WechatBribery.Controllers
 {
-    public class BaseController : BaseController<BriberyContext, IdentityUser, string>
+    public class BaseController : BaseController<BriberyContext, User, string>
     {
     }
 }

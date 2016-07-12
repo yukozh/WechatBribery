@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Pomelo.Data.Excel;
 using WechatBribery.Models;
 using static Newtonsoft.Json.JsonConvert;
@@ -27,8 +27,16 @@ namespace WechatBribery.Controllers
         }
 
         [HttpPost]
-        public IActionResult Deliver(string Title, string Rules, double Ratio, IFormFile Background, IFormFile Bottom, string BottomUrl, [FromServices] IHostingEnvironment env)
+        public IActionResult Deliver(string Title, string Rules, double Ratio, [FromServices] IHostingEnvironment env)
         {
+            if (DB.Activities.Count(x => x.OwnerId == User.Current.Id && !x.End.HasValue) > 0)
+                return Prompt(x =>
+                {
+                    x.Title = "创建失败";
+                    x.Details = "还有活动正在进行，请等待活动结束后再创建新活动！";
+                    x.StatusCode = 400;
+                });
+
             // 存储活动信息
             var act = new Activity
             {
@@ -36,27 +44,26 @@ namespace WechatBribery.Controllers
                 Begin = DateTime.Now,
                 RuleJson = Rules,
                 Title = Title,
-                Ratio = Ratio / 100.0,
-                BottomUrl = BottomUrl
+                Ratio = Ratio / 100.0
             };
-
-            if (Background != null && Background.Length > 0)
-                act.Background = Background.ReadAllBytes();
-            else
-                act.Background = System.IO.File.ReadAllBytes(Path.Combine(env.WebRootPath, "images", "main.png"));
-
-            if (Bottom != null && Bottom.Length > 0)
-                act.Bottom = Bottom.ReadAllBytes();
-            else
-                act.Bottom = System.IO.File.ReadAllBytes(Path.Combine(env.WebRootPath, "images", "bottom.png"));
 
             DB.Activities.Add(act);
             DB.SaveChanges();
 
+            // 检查余额
+            var rule = DeserializeObject<List<RuleViewModel>>(Rules);
+            var total = rule.Sum(x => x.To * x.Count);
+            if (total > User.Current.Balance)
+                return Prompt(x => 
+                {
+                    x.Title = "余额不足";
+                    x.Details = $"您的余额不足以支付本轮活动的￥{ total.ToString("0.00") }";
+                    x.StatusCode = 400;
+                });
+
             // 创建红包
-            var rule = DeserializeObject<List<Rule>>(Rules);
             var random = new Random();
-            foreach(var x in rule)
+            foreach (var x in rule)
             {
                 for (var i = 0; i < x.Count; i++)
                 {
@@ -91,12 +98,19 @@ namespace WechatBribery.Controllers
 
         public IActionResult History()
         {
-            return PagedView(DB.Activities.OrderByDescending(x => x.Begin));
+            if (User.IsInRole("Root"))
+                return PagedView(DB.Activities.Include(x => x.Owner).OrderByDescending(x => x.Begin));
+            else
+                return PagedView(DB.Activities.Where(x => x.OwnerId == User.Current.Id).OrderByDescending(x => x.Begin));
         }
 
         public IActionResult Export(Guid id)
         {
-            var activity = DB.Activities.Single(x => x.Id == id);
+            Activity activity;
+            if (User.IsInRole("Root"))
+                activity = DB.Activities.Single(x => x.Id == id);
+            else
+                activity = DB.Activities.Single(x => x.Id == id && x.OwnerId == User.Current.Id);
 
             var src = DB.Briberies
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
@@ -125,20 +139,18 @@ namespace WechatBribery.Controllers
             return File(ret, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", activity.Title + ".xlsx");
         }
 
-        public IActionResult Background(Guid id)
-        {
-            return File(DB.Activities.Single(x => x.Id == id).Background, "image/png");
-        }
-
-        public IActionResult Bottom(Guid id)
-        {
-            return File(DB.Activities.Single(x => x.Id == id).Bottom, "image/png");
-        }
-
         [HttpPost]
         public IActionResult Stop(Guid id)
         {
-            var act = DB.Activities.Single(x => x.Id == id);
+            Activity act;
+            if (User.IsInRole("Root"))
+            {
+                act = DB.Activities.Single(x => x.Id == id);
+            }
+            else
+            {
+                act = DB.Activities.Single(x => x.Id == id && x.OwnerId == User.Current.Id);
+            }
             act.End = DateTime.Now;
             DB.SaveChanges();
             return RedirectToAction("Activity", "Home", new { id = id });

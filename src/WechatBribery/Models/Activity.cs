@@ -21,12 +21,11 @@ namespace WechatBribery.Models
 
         public long Price { get; set; }
 
-        public byte[] Background { get; set; }
-
-        public byte[] Bottom { get; set; }
-
-        public string BottomUrl { get; set; }
-
         public long Attend { get; set; }
+
+        [ForeignKey("Owner")]
+        public string OwnerId { get; set; }
+
+        public virtual User Owner { get; set; }
     }
 }

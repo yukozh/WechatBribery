@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace WechatBribery.Models
 {
-    public class Rule
+    public class RuleViewModel
     {
         /// <summary>
         /// 以分为单位

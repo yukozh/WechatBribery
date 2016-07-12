@@ -11,10 +11,14 @@
     </tr>
     <tr>
         <td class="row-title">数据库</td>
-        <td>SQLite v3</td>
+        <td>MySQL 5.6</td>
     </tr>
     <tr>
         <td class="row-title">操作系统</td>
         <td>@System.Platform.OS.ToString()</td>
+    </tr>
+    <tr>
+        <td class="row-title">我的余额</td>
+        <td>￥@((User.Current.Balance).ToString("0.00"))</td>
     </tr>
 </table>

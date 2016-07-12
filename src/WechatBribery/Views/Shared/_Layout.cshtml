@@ -106,6 +106,7 @@
                     </div>
                     <div class="pull-left info">
                         <p><i class="fa fa-user text-warning"></i>@User.Current.UserName</p>
+                        <p><i class="fa fa-star text-success">余额</i><i class="text-danger">￥@((User.Current.Balance).ToString("0.00"))</i></p>
                     </div>
                 </div>
                 <!-- sidebar menu: : style can be found in sidebar.less -->
@@ -117,25 +118,40 @@
                             <i class="fa fa-angle-left pull-right"></i>
                         </a>
                         <ul class="treeview-menu">
-                            <li><a asp-action="Index" asp-controller="Home"><i class="fa fa-circle-o"></i>后台首页</a></li>
+                            <li><a asp-action="Index" asp-controller="Home"><i class="fa fa-circle-o"></i>基本信息</a></li>
                             <li><a asp-action="Deliver" asp-controller="Home"><i class="fa fa-circle-o"></i>发放红包</a></li>
                             <li><a asp-action="History" asp-controller="Home"><i class="fa fa-circle-o"></i>发放历史</a></li>
                         </ul>
                     </li>
+                    @if (User.IsInRole("Root"))
+                    {
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-star-o"></i>
+                                <span>系统管理</span>
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a asp-action="Index" asp-controller="Account"><i class="fa fa-circle-o"></i> 用户列表</a></li>
+                                <li><a asp-action="Create" asp-controller="Account"><i class="fa fa-circle-o"></i> 创建用户</a></li>
+                            </ul>
+                        </li>
+                    }
                     <li class="treeview">
                         <a href="#">
                             <i class="fa fa-star-o"></i>
-                            <span>用户管理</span>
+                            <span>我的账户</span>
                             <i class="fa fa-angle-left pull-right"></i>
                         </a>
                         <ul class="treeview-menu">
-                            <li><a asp-action="Index" asp-controller="Account"><i class="fa fa-circle-o"></i> 用户列表</a></li>
-                            <li><a asp-action="Index" asp-controller="Account"><i class="fa fa-circle-o"></i> 修改密码</a></li>
-                            <li><a href="#"><i class="fa fa-circle-o"></i> 注销登录</a></li>
+                            <li><a asp-action="Password" asp-controller="Account"><i class="fa fa-circle-o"></i> 修改密码</a></li>
+                            <li><a asp-action="Profile" asp-controller="Account"><i class="fa fa-circle-o"></i> 修改商户信息</a></li>
+                            <li><a href="javascript:$('#frmLogout').submit();"><i class="fa fa-circle-o"></i> 注销登录</a></li>
                         </ul>
                     </li>
                 </ul>
             </section>
+            <form id="frmLogout" asp-action="Logout" asp-controller="Account" method="post"></form>
             <!-- /.sidebar -->
         </aside>
         <div>

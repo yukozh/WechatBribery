@@ -1,0 +1,29 @@
+﻿@{ 
+    ViewBag.Title = "修改商户信息";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<form asp-action="Profile" asp-controller="Account" method="post" enctype="multipart/form-data">
+    <table class="table table-bordered detail-table">
+        <tr>
+            <td class="row-title">上半部图片</td>
+            <td>
+                <input type="file" name="top" class="form-control" />
+                <img src="/file/download/@User.Current.TopPictureId" />
+            </td>
+        </tr>
+        <tr>
+            <td class="row-title">下半部图片</td>
+            <td>
+                <input type="file" name="bottom" class="form-control" />
+                <img src="/file/download/@User.Current.BottomPictureId" />
+            </td>
+        </tr>
+        <tr>
+            <td class="row-title">活动规则URL</td>
+            <td><input type="text" name="url" value="@User.Current.ActivityURL" class="form-control" /></td>
+        </tr>
+    </table>
+    <input type="submit" value="保存" class="btn btn-primary" />
+</form>

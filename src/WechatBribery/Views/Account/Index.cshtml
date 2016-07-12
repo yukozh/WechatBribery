@@ -1,0 +1,29 @@
+﻿@model IEnumerable<User>
+@{ 
+    ViewBag.Title = "用户列表";
+}
+<h2>@ViewBag.Title</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>用户名</th>
+            <th>角色</th>
+            <th>余额</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var x in Model)
+        {
+            <tr>
+                <td>@x.UserName</td>
+                <td>@((await User.Manager.GetRolesAsync(x)).First() == "Root" ? "管理员" : "普通商户")</td>
+                <td>￥@(x.Balance.ToString("0.00"))</td>
+                <td>
+                    <a asp-action="Charge" asp-controller="Account" asp-route-id="@x.Id">充值</a>
+                    <a asp-action="ResetPwd" asp-controller="Account" asp-route-id="@x.Id">修改密码</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

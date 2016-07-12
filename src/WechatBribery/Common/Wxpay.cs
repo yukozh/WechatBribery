@@ -13,7 +13,7 @@ namespace WechatBribery.Common
 {
     public static class Wxpay
     {
-        public static async Task<OpenId> AuthorizeAsync(string code)
+        public static async Task<OpenIdViewModel> AuthorizeAsync(string code)
         {
             using (var client = new HttpClient { BaseAddress = new Uri("https://api.weixin.qq.com") })
             {
@@ -21,7 +21,7 @@ namespace WechatBribery.Common
                 var result = await client.GetAsync($"/sns/oauth2/access_token?appid={ Startup.Config["WeChat:AppId"] }&secret={ Startup.Config["WeChat:Secret"] }&code={ code }&grant_type=authorization_code");
                 var jsonStr = await result.Content.ReadAsStringAsync();
                 var json = DeserializeObject<dynamic>(jsonStr);
-                var ret = new OpenId();
+                var ret = new OpenIdViewModel();
                 ret.AccessToken = json.access_token;
                 ret.AccessTokenExpire = DateTime.Now.AddSeconds((int)json.expires_in);
                 ret.RefreshToken = json.refresh_token;

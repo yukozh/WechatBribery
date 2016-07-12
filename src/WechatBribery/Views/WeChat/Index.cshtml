@@ -1,6 +1,16 @@
 ﻿@model Activity
 @{
     Layout = null;
+    var top = "/images/top.png";
+    var bottom = "/images/bottom.png";
+    if (Model.Owner.TopPictureId.HasValue)
+    {
+        top = "/file/download/" + Model.Owner.TopPictureId.Value;
+    }
+    if (Model.Owner.BottomPictureId.HasValue)
+    {
+        bottom = "/file/download/" + Model.Owner.TopPictureId.Value;
+    }
 }
 
 <html>
@@ -31,33 +41,13 @@
             background: #dc201f;
             margin-left: -110px;
         }
-
     </style>
-
-  @if (Model != null)
-    {
-        <style>
-            body {
-                background-image: url(/Home/Background/@Model.Id)!important;
-            }
-        </style>
-    }
-   
 </head>
 <body>
-  @if (Model == null)
-    {
-        <img src="~/images/bottom.png" style="width: 100%; position: absolute; bottom: 0; left: 0" />
-    }
-    else
-    {
-        <a href="@Model.BottomUrl"><img src="/Home/Bottom/@Model.Id" style="width: 100%; position: absolute; bottom: 0; left: 0" /></a>
-    }
-	
     <div class="alpha" style="background: rgba(0,0,0,0.8); width: 100%; height: 100%; position:absolute; left: 0; top: 0"></div>
-    <div class="pending" style="top:30%; position: absolute; bottom: 0; left: 0; z-index: 10">
-        <a class="close-pending" href="javascript:;" style="position: absolute;"><img src="~/images/close-2.png" style="width: 40px; height: 40px;" /></a>
-        <img src="~/images/pending.png" style="margin: 0 auto;width: 80%; display: block" />
+    <div class="pending" style="top:0px; position: absolute; bottom: 0; left: 0; z-index: 10">
+        <a href="javascript:;" style="width: 100%; display: block; z-index: 100"   onclick="finsh()" >
+        <img src="~/images/pending.png" style="margin: 0px auto;width: 100%; display: block" />      </a>
     </div>
     <div class="retry" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 10">
         <a class="close-pending" href="javascript:;"  onclick="finsh()" >
@@ -136,27 +126,27 @@
                     lock = true;
                     //TODO 相关方法，比如：
 					
-                    hub.server.shake()
-                        .done(function (data) {
-                            if (data == "NO") {
-						setTimeout(function(){
+                    $.post('/WeChat/Shake/@Model.Id', { }, function (data) { 
+                        if (data == "AUTH")
+                            window.location.reload();
+                        else if (data == "NO") {
+                            setTimeout(function () {
                                 $('.alpha').show();
-                                $('.pending').show();},1300)
-						
-                            } else if (data == "RETRY") {
-						setTimeout(function(){
+                                $('.pending').show();
+                            }, 1300)
+                        } else if (data == "RETRY") {
+                            setTimeout(function () {
                                 $('.alpha').show();
-                                $('.retry').show();},1300);  clearTimeout(shakeTimeout);
-                            } else {
-						setTimeout(function(){
-                                $('#btnRedirect').attr('href', 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=@WechatBribery.Startup.Config["WeChat:AppId"]&redirect_uri=@Context.Request.Scheme://@Context.Request.Host/WeChatApi/ExchangeCode/' + data + '&response_type=code&scope=snsapi_userinfo');
+                                $('.retry').show();
+                            }, 1300); clearTimeout(shakeTimeout);
+                        } else {
+                            setTimeout(function () {
+                                $('#btnRedirect').attr('href', '/WeChat/Bribery/' + data);
                                 $('.alpha').show();
-                                $('.ok').show();},1300);  clearTimeout(shakeTimeout);
-                            }
-                        });
-                  
-                
-
+                                $('.ok').show();
+                            }, 1300); clearTimeout(shakeTimeout);
+                        }
+                    });
                 lastShakeX = curShakeX;
                 lastShakeY = curShakeY;
                 lastShakeZ = curShakeZ;
@@ -191,14 +181,19 @@ function audioAutoPlay(musicBox){
 function finsh(){self.location.reload();}
 
 </script>
+
 <audio style="display:none;" id="musicBox" preload="metadata"  controls  
  src="~/sounds/shake_sound.mp3">  
  </audio>
  <div class="shake_box" >
-   <div class="shakTop"></div>
-   <div class="shakBottom"></div>
+   <div class="shakTop" style="background: url(@top)!important;"></div>
+   <div class="shakBottom" style="background: url(@bottom)!important;"></div>
+     <script>
+         $('.shakBottom').click(function () {
+             window.location = '@Model.Owner.ActivityURL';
+         });
+     </script>
+   <a href="javascript:void(0)" style="position:absolute;bottom:0px;right:10px;width:140px;height:60px;" id="shaked-hand"></a>
  </div>
-	
-	
 </body>
 </html>

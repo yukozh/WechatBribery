@@ -9,6 +9,10 @@
     <thead>
         <tr>
             <th>活动名称</th>
+            @if (User.IsInRole("Root"))
+            {
+                <th>创建者</th>
+            }
             <th>状态</th>
             <th>开始时间</th>
             <th>结束时间</th>
@@ -30,6 +34,10 @@
                 else
                 {
                     <td><span class="label label-danger">正在进行</span></td>
+                }
+                @if (User.IsInRole("Root"))
+                { 
+                    <td>@x.Owner.UserName</td>
                 }
                 <td>@x.Begin</td>
                 <td>@x.End</td>

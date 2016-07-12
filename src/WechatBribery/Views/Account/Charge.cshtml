@@ -1,0 +1,16 @@
+﻿@model User
+@{ 
+    ViewBag.Title = "商户充值 - " + Model.UserName;
+}
+
+<h2>@ViewBag.Title</h2>
+
+<form asp-action="Charge" asp-controller="Account" asp-route-id="@Model.Id">
+    <table class="table table-bordered detail-table">
+        <tr>
+            <td class="row-title">充值金额（元）</td>
+            <td><input class="form-control" type="text" value="0.00" name="price" /></td>
+        </tr>
+    </table>
+    <input type="submit" value="充值" />
+</form>

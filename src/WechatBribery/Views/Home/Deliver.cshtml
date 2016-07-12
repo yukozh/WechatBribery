@@ -4,7 +4,7 @@
 
 <h2>@ViewBag.Title</h2>
 
-<form asp-action="Deliver" asp-controller="Home" method="post" enctype="multipart/form-data">
+<form asp-action="Deliver" asp-controller="Home" method="post">
     <table class="table table-bordered detail-table">
         <tr>
             <td class="row-title">活动名称</td>
@@ -33,18 +33,6 @@
                     <tbody id="rule-list"></tbody>
                 </table>
             </td>
-        </tr>
-        <tr>
-            <td class="row-title">宣传画设定（背景）</td>
-            <td><input type="file" name="Background" /></td>
-        </tr>
-        <tr>
-            <td class="row-title">宣传画设定（底部）</td>
-            <td><input type="file" name="Background" /></td>
-        </tr>
-        <tr>
-            <td class="row-title">宣传画底部链接</td>
-            <td><input type="text" name="BottomUrl" class="form-control" /></td>
         </tr>
     </table>
     <p><input type="submit" id="btnDeliver" class="btn btn-primary" value="开始发放" /></p>

@@ -1,0 +1,16 @@
+﻿@model User
+@{ 
+    ViewBag.Title = "重置密码 - " + Model.UserName;
+}
+
+<h2>@ViewBag.Title</h2>
+
+<form asp-action="ResetPwd" asp-controller="Account" asp-route-id="@Model.Id">
+    <table class="table table-bordered detail-table">
+        <tr>
+            <td class="row-title">新密码</td>
+            <td><input class="form-control" type="password" value="0.00" name="pwd" /></td>
+        </tr>
+    </table>
+    <input type="submit" value="修改" />
+</form>
