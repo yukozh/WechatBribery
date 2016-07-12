@@ -22,11 +22,11 @@ namespace WechatBribery.Controllers
                 HttpContext.Session.SetString("Expire", oid.AccessTokenExpire.ToString());
                 HttpContext.Session.SetString("Nickname", oid.NickName);
                 HttpContext.Session.SetString("AvatarUrl", oid.AvatarUrl);
-                return RedirectToAction("Index", "WeChat", new { owner = owner });
+                return RedirectToAction("Index", "WeChat", new { id = owner });
             }
             catch
             {
-                return RedirectToAction("Index", "WeChat", new { owner = owner });
+                return RedirectToAction("Index", "WeChat", new { id = owner });
             }
         }
     }

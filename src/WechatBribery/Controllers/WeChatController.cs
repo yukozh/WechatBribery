@@ -12,14 +12,17 @@ namespace WechatBribery.Controllers
 {
     public class WeChatController : BaseController
     {
-        public async Task<IActionResult> Index(string id)
+        public IActionResult Index(string id)
         {
             // 判断是否需要授权
-            if (HttpContext.Session.GetString("OpenId") == null || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
-                return Redirect("https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + Startup.Config["WeChat: AppId"] + "&redirect_uri=" + HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/WeChatApi/ExchangeCode/" + id + "&response_type=code&scope=snsapi_userinfo");
+            //if (HttpContext.Session.GetString("OpenId") == null || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
+            //    return Redirect("https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + Startup.Config["WeChat:AppId"] + "&redirect_uri=" + HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/WeChatApi/ExchangeCode/" + id + "&response_type=code&scope=snsapi_userinfo");
 
-            var user = await UserManager.FindByNameAsync(id);
-            var activity = DB.Activities.Include(x => x.Owner).Where(x => x.OwnerId == user.Id).LastOrDefault();
+            var user = DB.Users.Single(x => x.UserName == id);
+            var activity = DB.Activities
+                .Include(x => x.Owner)
+                .Where(x => x.OwnerId == user.Id)
+                .LastOrDefault();
             return View(activity);
         }
 
