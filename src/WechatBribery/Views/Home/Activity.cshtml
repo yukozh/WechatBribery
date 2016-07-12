@@ -106,8 +106,9 @@
 <script>
     var timer;
     var endTime = @(new HtmlString((Model.End.HasValue ? "new Date('" + Model.End.Value.ToString("yyyy-MM-dd HH:mm:ss") + "')" : "null")));
+    var time1 = (new Date('@Model.Begin.ToString("yyyy-MM-dd HH:mm:ss")')).getTime();
+
     timer = setInterval(function () {
-        var time1 = (new Date('@Model.Begin.ToString("yyyy-MM-dd HH:mm:ss")')).getTime();
         var time2 = (new Date()).getTime();
         if (endTime)
             time2 = endTime;
@@ -116,14 +117,12 @@
         var minutes = parseInt(span / 60 % 60);
         var hours = parseInt(span / 60 / 60);
         $('.time').html(hours + "小时" + minutes + "分" + secs + "秒");
-        if (endTime)
-            clearInterval(timer);
     }, 1000);
 
     var hub = $.connection.briberyHub;
 
     hub.client.onDelivered = function (data) {
-        $('.price').html(parseFloat($('.price').html()) + parseFloat(data.price / 100.0).toFixed(2));
+        $('.price').html((parseFloat($('.price').html()) + parseFloat(data.price / 100.0)).toFixed(2));
         $('.amount').html(parseInt($('.amount').html()) + 1);
         $('#realtime-list').prepend('<tr><td>' + data.id + '</td><td><img style="width:35px;height:35px" src="' + data.avatar + '" /></td><td>' + data.name + '</td><td>￥' + (data.price / 100.0).toFixed(2) + '</td><td>' + new Date(data.time) + '</td></tr>');
     }
@@ -140,6 +139,5 @@
 
     $.connection.hub.start(null, function () {
         hub.server.join('@Model.Id');
-        endTime = new Date();
     });
 </script>

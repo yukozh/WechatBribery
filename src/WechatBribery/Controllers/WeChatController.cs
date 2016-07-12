@@ -15,13 +15,13 @@ namespace WechatBribery.Controllers
         public IActionResult Index(string id)
         {
             // 判断是否需要授权
-            //if (HttpContext.Session.GetString("OpenId") == null || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
-            //    return Redirect("https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + Startup.Config["WeChat:AppId"] + "&redirect_uri=" + HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/WeChatApi/ExchangeCode/" + id + "&response_type=code&scope=snsapi_userinfo");
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("OpenId")) || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
+                return Redirect("https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + Startup.Config["WeChat:AppId"] + "&redirect_uri=" + HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/WeChatApi/ExchangeCode/" + id + "&response_type=code&scope=snsapi_userinfo");
 
             var user = DB.Users.Single(x => x.UserName == id);
             var activity = DB.Activities
                 .Include(x => x.Owner)
-                .Where(x => x.OwnerId == user.Id)
+                .Where(x => x.Owner.UserName == user.Id)
                 .LastOrDefault();
             return View(activity);
         }
@@ -37,24 +37,31 @@ namespace WechatBribery.Controllers
             return View(activity);
         }
 
-        public async Task<IActionResult> Shake(Guid id, [FromServices] IHubContext<BriberyHub> Hub)
+        public IActionResult Exceeded()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Shake(string id, [FromServices] IHubContext<BriberyHub> Hub)
         {
             // 判断是否需要授权
-            if (HttpContext.Session.GetString("OpenId") == null || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("OpenId")) || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
                 return Content("AUTH");
 
             // 判断是否中奖超过10次
             var beg = DateTime.Now.Date; 
             if (DB.Briberies.Count(x => x.OpenId == HttpContext.Session.GetString("OpenId") && x.ReceivedTime.HasValue && x.ReceivedTime.Value >= beg) >= 10)
-                return View("Exceeded");
+                return Content("EXCEEDED");
 
             // 获取活动信息
-            var activity = DB.Activities.FirstOrDefault(x => x.Id == id);
+            var activity = DB.Activities
+                .Include(x => x.Owner)
+                .FirstOrDefault(x => x.Owner.UserName == id && !x.End.HasValue);
             if (activity == null)
                 return Content("NO");
 
             // 参与人数缓存
-            DB.Database.ExecuteSqlCommandAsync("UPDATE Activities SET Attend = Attend + 1; ");
+            DB.Database.ExecuteSqlCommandAsync("UPDATE Activities SET Attend = Attend + 1 WHERE Id = '" + activity.Id + "'; ");
             Hub.Clients.Group(activity.Id.ToString()).OnShaked();
 
             // 抽奖
@@ -86,22 +93,26 @@ namespace WechatBribery.Controllers
                 await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:TransferDescription"]);
                 Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new { time = prize.ReceivedTime, avatar = HttpContext.Session.GetString("AvatarUrl"), name = HttpContext.Session.GetString("Nickname"), price = prize.Price, id = HttpContext.Session.GetString("OpenId") });
 
-                // 检查剩余红包数
-                if (DB.Briberies.Count(x => x.ActivityId == activity.Id && !x.ReceivedTime.HasValue) == 0)
+                try
                 {
-                    activity.End = DateTime.Now;
-                    Hub.Clients.Group(activity.Id.ToString()).OnActivityEnd();
+                    DB.ChangeTracker.DetectChanges();
+                    // 检查剩余红包数
+                    if (DB.Briberies.Count(x => x.ActivityId == activity.Id && !x.ReceivedTime.HasValue) == 0)
+                    {
+                        activity.End = DateTime.Now;
+                        DB.SaveChanges();
+                        Hub.Clients.Group(activity.Id.ToString()).OnActivityEnd();
+                    }
                 }
+                catch { }
 
-                lock (this)
-                {
-                    // 扣除红包费用
-                    User.Current.Balance -= prize.Price / 100.0;
-                    DB.SaveChanges();
-                }
+                // 扣除红包费用
+                activity.Owner.Balance -= prize.Price / 100.0;
+                DB.ChangeTracker.DetectChanges();
+                DB.SaveChanges();
 
                 // 返回中奖信息
-                return Content(prize.Id.ToString());
+                return Content((prize.Price / 100.0).ToString("0.00"));
             }
 
             return Content("RETRY");

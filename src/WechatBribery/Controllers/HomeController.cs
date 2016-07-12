@@ -44,7 +44,8 @@ namespace WechatBribery.Controllers
                 Begin = DateTime.Now,
                 RuleJson = Rules,
                 Title = Title,
-                Ratio = Ratio / 100.0
+                Ratio = Ratio / 100.0,
+                OwnerId = User.Current.Id
             };
 
             DB.Activities.Add(act);

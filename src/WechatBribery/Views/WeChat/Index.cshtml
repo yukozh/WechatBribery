@@ -46,15 +46,15 @@
 </head>
 <body>
     <div class="alpha" style="background: rgba(0,0,0,0.8); width: 100%; height: 100%; position:absolute; left: 0; top: 0"></div>
-    <div class="pending" style="top:0px; position: absolute; bottom: 0; left: 0; z-index: 10">
+    <div class="pending" style="top:0px; position: absolute; bottom: 0; left: 0; z-index: 100">
         <a href="javascript:;" style="width: 100%; display: block; z-index: 100"   onclick="finsh()" >
         <img src="~/images/pending.png" style="margin: 0px auto;width: 100%; display: block" />      </a>
     </div>
-    <div class="retry" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 10">
+    <div class="retry" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 100">
         <a class="close-pending" href="javascript:;"  onclick="finsh()" >
         <img src="~/images/undrawn.png" style="margin: 0 auto;width: 100%;" /></a>
     </div>
-    <div class="ok" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 10">
+    <div class="ok" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 100">
         <a class="close-pending" href="javascript:;" style="position: absolute;"><img src="~/images/close-1.png" style="width: 40px; height: 40px;" /></a>
         <img id="btnAward" src="~/images/drawn.png" style="margin: 0 auto;width: 100%;" />
         <a href="javascript:;" id="btnRedirect">打开红包</a>
@@ -117,14 +117,14 @@
 
                 if (speed > shakeThreshold) {
 				    audioAutoPlay('musicBox');
-				  
+
                     if (lock) return;
                     lock = true;
                     //TODO 相关方法，比如：
-					
-                    $.post('/WeChat/Shake/@(Model?.Id)', { }, function (data) { 
+
+                    $.post('/WeChat/Shake/@(ViewContext.RouteData.Values["id"])', {}, function (data) {
                         if (data == "AUTH")
-                            window.location.reload();
+                            window.location = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=@WechatBribery.Startup.Config["WeChat:AppId"]&redirect_uri=@Context.Request.Scheme://@Context.Request.Host/WeChatApi/ExchangeCode/@(ViewContext.RouteData.Values["id"])' + '&response_type=code&scope=snsapi_userinfo';
                         else if (data == "NO") {
                             setTimeout(function () {
                                 $('.alpha').show();
@@ -134,13 +134,13 @@
                             setTimeout(function () {
                                 $('.alpha').show();
                                 $('.retry').show();
-                            }, 1300); clearTimeout(shakeTimeout);
+                            }, 1300);
+                        } else if (data == "EXCEEDED") {
+                            window.location = "/WeChat/Exceeded";
                         } else {
                             setTimeout(function () {
-                                $('#btnRedirect').attr('href', '/WeChat/Bribery/' + data);
-                                $('.alpha').show();
-                                $('.ok').show();
-                            }, 1300); clearTimeout(shakeTimeout);
+                                alert("恭喜您获得 ￥" + data);
+                            }, 1300);
                         }
                     });
                 lastShakeX = curShakeX;
@@ -153,13 +153,13 @@ var flag=true;
 
 function audioAutoPlay(musicBox){
    if(flag){
-  
+
    $('.shake_box').addClass('shake_box_focus');
 	clearTimeout(shakeTimeout);
    var shakeTimeout = setTimeout(function(){
-	$('.shake_box').removeClass('shake_box_focus');					
+	$('.shake_box').removeClass('shake_box_focus');
 		},1300);
-		
+
    var audio = document.getElementById("musicBox"),
         play = function(){
         audio.play();
@@ -167,12 +167,12 @@ function audioAutoPlay(musicBox){
     audio.play();
     document.addEventListener("WeixinJSBridgeReady", function () {//微信
        play();
-    }, false);	
+    }, false);
 	 flag=false;
    }
 
   return false;
-  
+
 }
 function finsh(){self.location.reload();}
 

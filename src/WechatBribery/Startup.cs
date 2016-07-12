@@ -22,9 +22,12 @@ namespace WechatBribery
             services.AddSmartCookies();
             services.AddSmartUser<User, string>();
             services.AddMemoryCache();
-            services.AddSession();
+            services.AddSession(o =>
+            {
+                o.IdleTimeout = new System.TimeSpan(0, 20, 0);
+            });
 
-            services.AddDbContext<BriberyContext>(x => x.UseMySql("Server=localhost;database=wechat;uid=root;pwd=19931101;charset=utf8"));
+            services.AddDbContext<BriberyContext>(x => x.UseMySql("Server=localhost;database=wechat;uid=root;pwd=Sun060810;charset=utf8"));
 
             services.AddIdentity<User, IdentityRole>(x =>
             {
