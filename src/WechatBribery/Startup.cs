@@ -24,7 +24,7 @@ namespace WechatBribery
             services.AddMemoryCache();
             services.AddSession();
 
-            services.AddDbContext<BriberyContext>(x => x.UseMySql("Server=localhost;database=wechat;uid=root;pwd=19931101"));
+            services.AddDbContext<BriberyContext>(x => x.UseMySql("Server=localhost;database=wechat;uid=root;pwd=Sun060810;charset=utf8"));
 
             services.AddIdentity<User, IdentityRole>(x =>
             {

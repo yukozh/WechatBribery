@@ -18,6 +18,10 @@
         <td>@System.Platform.OS.ToString()</td>
     </tr>
     <tr>
+        <td class="row-title">微信链接</td>
+        <td><a href="@Context.Request.Scheme://@Context.Request.Host/WeChat/Index/@User.Current.UserName">@Context.Request.Scheme://@Context.Request.Host/WeChat/Index/@User.Current.UserName</a></td>
+    </tr>
+    <tr>
         <td class="row-title">我的余额</td>
         <td>￥@((User.Current.Balance).ToString("0.00"))</td>
     </tr>

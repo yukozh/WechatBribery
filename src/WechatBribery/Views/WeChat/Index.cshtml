@@ -21,8 +21,6 @@
     <link href="~/styles/mobile.css" rel="stylesheet" />
 	<link href="~/styles/shaked.css" rel="stylesheet" />
     <script src="~/scripts/jQuery-2.1.4.min.js"></script>
-    <script src="~/scripts/jquery.signalr-2.0.3.js"></script>
-    <script src="~/signalr/hubs"></script>
     <style>
         #btnRedirect {
             margin: 0 auto;
@@ -73,12 +71,7 @@
             lock = false;
         });
 
-        var hub = $.connection.briberyHub;
-        $.connection.hub.start(null, function () {
-            lock = false;
-        });
-
-        var lock = true;
+        var lock = false;
 
         //先判断设备是否支持HTML5摇一摇功能
         if (window.DeviceMotionEvent) {
