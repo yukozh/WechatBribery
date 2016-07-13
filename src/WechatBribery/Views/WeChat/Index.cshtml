@@ -149,29 +149,24 @@
 				    audioAutoPlay('musicBox');
 
                     //TODO 相关方法，比如：
-
-                    $.post('/WeChat/Shake/@(ViewContext.RouteData.Values["id"])', {}, function (data) {
-                        if (data == "AUTH")
-                            window.location = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=@WechatBribery.Startup.Config["WeChat:AppId"]&redirect_uri=@Context.Request.Scheme://@Context.Request.Host/WeChatApi/ExchangeCode/@(ViewContext.RouteData.Values["id"])' + '&response_type=code&scope=snsapi_userinfo';
-                        else if (data == "NO") {
-                            setTimeout(function () {
-                                $('.alpha').show();
-                                $('.pending').show();
-                            }, 1300)
-                        } else if (data == "RETRY") {
-                            setTimeout(function () {
-                                $('.alpha').show();
-                                $('.retry').show();
-                            }, 1300);
-                        } else if (data == "EXCEEDED") {
-                            window.location = "/WeChat/Exceeded";
-                        } else {
-                            setTimeout(function () {
-                                $('.ok').show();
-                                $('#price').html(data);
-                            }, 1300);
-                        }
-                    });
+				    setTimeout(function () {
+				        $.post('/WeChat/Shake/@(ViewContext.RouteData.Values["id"])', {}, function (data) {
+				            if (data == "AUTH")
+				                window.location = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=@WechatBribery.Startup.Config["WeChat:AppId"]&redirect_uri=@Context.Request.Scheme://@Context.Request.Host/WeChatApi/ExchangeCode/@(ViewContext.RouteData.Values["id"])' + '&response_type=code&scope=snsapi_userinfo';
+				            else if (data == "NO") {
+				                $('.alpha').show();
+				                $('.pending').show();
+				            } else if (data == "RETRY") {
+				                $('.alpha').show();
+				                $('.retry').show();
+				            } else if (data == "EXCEEDED") {
+				                window.location = "/WeChat/Exceeded";
+				            } else {
+				                $('.ok').show();
+				                $('#price').html(data);
+				            }
+				        });
+				    }, 1300);
                 lastShakeX = curShakeX;
                 lastShakeY = curShakeY;
                 lastShakeZ = curShakeZ;
