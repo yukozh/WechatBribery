@@ -127,8 +127,8 @@
         $('#realtime-list').prepend('<tr><td>' + data.id + '</td><td><img style="width:35px;height:35px" src="' + data.avatar + '" /></td><td>' + data.name + '</td><td>￥' + (data.price / 100.0).toFixed(2) + '</td><td>' + new Date(data.time) + '</td></tr>');
     }
 
-    hub.client.onShaked = function () {
-        $('.attend').html(parseInt($('.attend').html()) + 1);
+    hub.client.onShaked = function (data) {
+        $('.attend').html(data);
     };
 
     hub.client.onActivityEnd = function () {

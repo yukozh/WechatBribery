@@ -22,6 +22,7 @@ namespace WechatBribery
             services.AddSmartCookies();
             services.AddSmartUser<User, string>();
             services.AddMemoryCache();
+            services.AddTimedJob();
             services.AddSession(o =>
             {
                 o.IdleTimeout = new System.TimeSpan(0, 20, 0);
@@ -45,6 +46,7 @@ namespace WechatBribery
         public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(LogLevel.Error, true);
+            app.UseTimedJob();
             app.UseSession();
             app.UseSignalR();
             app.UseIdentity();

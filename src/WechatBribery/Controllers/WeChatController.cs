@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -53,9 +54,9 @@ namespace WechatBribery.Controllers
             if (DB.Briberies.Count(x => x.OpenId == HttpContext.Session.GetString("OpenId") && x.ReceivedTime >= cooldown) > 0)
                 return Content("RETRY");
 
-            // 判断是否中奖超过10次
+            // 判断是否中奖超过每日最大次数
             var beg = DateTime.Now.Date; 
-            if (DB.Briberies.Count(x => x.OpenId == HttpContext.Session.GetString("OpenId") && x.ReceivedTime.HasValue && x.ReceivedTime.Value >= beg) >= 10)
+            if (DB.Briberies.Count(x => x.OpenId == HttpContext.Session.GetString("OpenId") && x.ReceivedTime.HasValue && x.ReceivedTime.Value >= beg) >= Convert.ToInt32(Startup.Config["MaxPerDay"]))
                 return Content("EXCEEDED");
 
             // 获取活动信息
@@ -70,7 +71,6 @@ namespace WechatBribery.Controllers
             DB.SaveChanges();
             if (activity.Attend % 600 == 0)
                 GC.Collect();
-            Hub.Clients.Group(activity.Id.ToString()).OnShaked();
 
             // 抽奖
             var rand = new Random();
@@ -85,6 +85,7 @@ namespace WechatBribery.Controllers
                 {
                     activity.End = DateTime.Now;
                     DB.SaveChanges();
+                    Hub.Clients.Group(activity.Id.ToString()).OnShaked(activity.Attend);
                     Hub.Clients.Group(activity.Id.ToString()).OnActivityEnd();
                     return Content("RETRY");
                 }
@@ -108,6 +109,7 @@ namespace WechatBribery.Controllers
                     {
                         activity.End = DateTime.Now;
                         DB.SaveChanges();
+                        Hub.Clients.Group(activity.Id.ToString()).OnShaked(activity.Attend);
                         Hub.Clients.Group(activity.Id.ToString()).OnActivityEnd();
                     }
                 }
