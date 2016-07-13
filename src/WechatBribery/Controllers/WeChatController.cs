@@ -68,6 +68,8 @@ namespace WechatBribery.Controllers
             // 参与人数缓存
             activity.Attend++;
             DB.SaveChanges();
+            if (activity.Attend % 600 == 0)
+                GC.Collect();
             Hub.Clients.Group(activity.Id.ToString()).OnShaked();
 
             // 抽奖

@@ -44,7 +44,7 @@ namespace WechatBribery
 
         public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(LogLevel.Warning, true);
+            loggerFactory.AddConsole(LogLevel.Error, true);
             app.UseSession();
             app.UseSignalR();
             app.UseIdentity();
