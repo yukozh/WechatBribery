@@ -99,7 +99,6 @@
             $('.pending').hide();
             $('.retry').hide();
             $('.ok').hide();
-            lock = false;
         });
 
         var lock = false;
@@ -211,46 +210,7 @@ function finsh2(){
     $('.ok').hide();
     lock = false;
 }
-
 </script>
-<script type="text/javascript">
- $(function(){
-	 $('#shaked-hand').click(function(){
-		  audioAutoPlay('musicBox');
-		 if (lock) return;
-                    lock = true;
-                    //TODO 相关方法，比如：
-
-                    $.post('/WeChat/Shake/@(ViewContext.RouteData.Values["id"])', {}, function (data) {
-                        if (data == "AUTH")
-                            window.location = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=@WechatBribery.Startup.Config["WeChat:AppId"]&redirect_uri=@Context.Request.Scheme://@Context.Request.Host/WeChatApi/ExchangeCode/@(ViewContext.RouteData.Values["id"])' + '&response_type=code&scope=snsapi_userinfo';
-                        else if (data == "NO") {
-                            setTimeout(function () {
-                                $('.alpha').show();
-                                $('.pending').show();
-                            }, 1300)
-                        } else if (data == "RETRY") {
-                            setTimeout(function () {
-                                $('.alpha').show();
-                                $('.retry').show();
-                            }, 1300);
-                        } else if (data == "EXCEEDED") {
-                            window.location = "/WeChat/Exceeded";
-                        } else {
-                            setTimeout(function () {
-							  $('.ok').show();
-							   document.getElementById("money").innerText = data;
-                               
-                                lock = false;
-                            }, 1300);
-                        }
-                    });		  
-                   
-	})
-	 
- })
- </script>
-
 <audio style="display:none;" id="musicBox" preload="metadata"  controls  
  src="~/sounds/shake_sound.mp3">  
  </audio>
@@ -265,7 +225,6 @@ function finsh2(){
          });
         </script>
      }
-   <a href="javascript:void(0)" style="position:absolute;bottom:0px;right:10px;width:140px;height:60px;" id="shaked-hand"></a>
  </div>
 </body>
 </html>
