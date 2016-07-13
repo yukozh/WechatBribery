@@ -47,6 +47,11 @@ namespace WechatBribery.Controllers
             // 判断是否需要授权
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("OpenId")) || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
                 return Content("AUTH");
+            
+            // 微信平台要求15秒内不能给同一个用户再次发红包
+            var cooldown = DateTime.Now.AddSeconds(-15);
+            if (DB.Briberies.Count(x => x.OpenId == HttpContext.Session.GetString("OpenId") && x.ReceivedTime >= cooldown) > 0)
+                return Content("RETRY");
 
             // 判断是否中奖超过10次
             var beg = DateTime.Now.Date; 
