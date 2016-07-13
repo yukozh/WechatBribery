@@ -61,13 +61,13 @@ namespace WechatBribery.Controllers
                 return Content("NO");
 
             // 参与人数缓存
-            DB.Database.ExecuteSqlCommandAsync("UPDATE Activities SET Attend = Attend + 1 WHERE Id = '" + activity.Id + "'; ");
+            activity.Attend++;
+            DB.SaveChanges();
             Hub.Clients.Group(activity.Id.ToString()).OnShaked();
 
             // 抽奖
             var rand = new Random();
             var num = rand.Next(0, 10000);
-
             if (num <= activity.Ratio * 10000)
             {
                 var prize = DB.Briberies
