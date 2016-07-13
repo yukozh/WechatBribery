@@ -36,6 +36,17 @@ namespace WechatBribery.Controllers
                     x.Details = "还有活动正在进行，请等待活动结束后再创建新活动！";
                     x.StatusCode = 400;
                 });
+            
+            // 检查余额
+            var rule = DeserializeObject<List<RuleViewModel>>(Rules);
+            var total = rule.Sum(x => x.To * x.Count);
+            if (total / 100.0 > User.Current.Balance)
+                return Prompt(x =>
+                {
+                    x.Title = "余额不足";
+                    x.Details = $"您的余额不足以支付本轮活动的￥{ total.ToString("0.00") }";
+                    x.StatusCode = 400;
+                });
 
             // 存储活动信息
             var act = new Activity
@@ -50,17 +61,6 @@ namespace WechatBribery.Controllers
 
             DB.Activities.Add(act);
             DB.SaveChanges();
-
-            // 检查余额
-            var rule = DeserializeObject<List<RuleViewModel>>(Rules);
-            var total = rule.Sum(x => x.To * x.Count);
-            if (total > User.Current.Balance)
-                return Prompt(x => 
-                {
-                    x.Title = "余额不足";
-                    x.Details = $"您的余额不足以支付本轮活动的￥{ total.ToString("0.00") }";
-                    x.StatusCode = 400;
-                });
 
             // 创建红包
             var random = new Random();
