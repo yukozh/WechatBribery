@@ -144,10 +144,11 @@
                 var speed = Math.abs(curShakeX + curShakeY + curShakeZ - lastShakeX - lastShakeY - lastShakeZ) / diffTime * 10000;
 
                 if (speed > shakeThreshold) {
-				    audioAutoPlay('musicBox');
-
                     if (lock) return;
                     lock = true;
+
+				    audioAutoPlay('musicBox');
+
                     //TODO 相关方法，比如：
 
                     $.post('/WeChat/Shake/@(ViewContext.RouteData.Values["id"])', {}, function (data) {
