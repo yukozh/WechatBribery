@@ -1,8 +1,8 @@
 ﻿@model Activity
 @{
     Layout = null;
-    var img_top = "/images/top.png";
-    var img_bottom = "/images/bottom.png";
+    var img_top = "/images/top.jpg";
+    var img_bottom = "/images/bottom.jpg";
     if (Model != null)
     {
         if (Model.Owner.TopPictureId.HasValue)
@@ -42,24 +42,52 @@
             background: #dc201f;
             margin-left: -110px;
         }
+		.btn {
+            margin: 0 auto;
+            display: block;
+            width: 220px;
+            height: 50px;
+            border-radius: 50px;
+            text-align: center;
+            color: #fed639;
+            font-size: 18px;
+            line-height: 50px;
+            position: absolute;
+            left: 50%;
+            bottom: 100px;
+			z-index:9999;
+            text-decoration: none;
+            background: #dc201f;
+            margin-left: -110px;
+        }
     </style>
 </head>
 <body>
     <div class="alpha" style="background: rgba(0,0,0,0.8); width: 100%; height: 100%; position:absolute; left: 0; top: 0"></div>
-    <div class="pending" style="top:0px; position: absolute; bottom: 0; left: 0; z-index: 100">
+    <div class="pending" id="hid-img" style="top:0px; position: absolute; bottom: 0; left: 0; z-index: 100">
         <a href="javascript:;" style="width: 100%; display: block; z-index: 100"   onclick="finsh()" >
         <img src="~/images/pending.png" style="margin: 0px auto;width: 100%; display: block" />      </a>
     </div>
-    <div class="retry" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 100">
-        <a class="close-pending" href="javascript:;"  onclick="finsh()" >
-        <img src="~/images/undrawn.png" style="margin: 0 auto;width: 100%;" /></a>
+    <div class="retry" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 100" id="hid-img1">
+        <a class="close-pending" href="javascript:;"  onclick="finsh1()" >
+        <img src="~/images/undrawn.png" id="hid-img1" style="margin: 0 auto;width: 100%;" /></a>
     </div>
-    <div class="ok" style="top:0; position: absolute; bottom: 0; left: 0; z-index: 100">
-        <a class="close-pending" href="javascript:;" style="position: absolute;"><img src="~/images/close-1.png" style="width: 40px; height: 40px;" /></a>
-        <img id="btnAward" src="~/images/drawn.png" style="margin: 0 auto;width: 100%;" />
-        <a href="javascript:;" id="btnRedirect">打开红包</a>
+    <div class="ok" style="background:rgba(52, 52, 52, 0.5);top:0; position: absolute; bottom: 0; left: 0; z-index: 100;" id="hid-img2" >
+        <img id="btnAward"  src="~/images/drawn-2.png" style="width: 100%" />
+		  <div id="price" style="position:absolute; width: 300px; left: 50%; margin-left: -150px; text-align: center; color: #c11515; font-size: 22px;"></div>
+		 <a asp-action="Index" asp-controller="WeChat" class="btn" onclick="finsh2()">再来一次</a>
 </div>
+  <script>
+        $(document).ready(function () {
+            $('#price').css('top', $(window).width() * 18.2 / 22.08);
+            $('.btn').css('top', $(window).width() * 24.2 / 22.08);
+        });
 
+        $(window).resize(function () {
+            $('#price').css('top', $(window).width() * 18.2 / 22.08);
+            $('.btn').css('top', $(window).width() * 24.2 / 22.08);
+        });
+    </script>
     <script>
          $('.alpha').hide();
          $('.pending').hide();
@@ -139,8 +167,8 @@
                             window.location = "/WeChat/Exceeded";
                         } else {
                             setTimeout(function () {
-                                alert("恭喜您获得 ￥" + data);
-                                lock = false;
+                                $('.ok').show();
+                                $('#price').html(data);
                             }, 1300);
                         }
                     });
@@ -150,11 +178,8 @@
             }
         }
 }
-var flag=true;
 
 function audioAutoPlay(musicBox){
-   if(flag){
-
    $('.shake_box').addClass('shake_box_focus');
 	clearTimeout(shakeTimeout);
    var shakeTimeout = setTimeout(function(){
@@ -169,22 +194,68 @@ function audioAutoPlay(musicBox){
     document.addEventListener("WeixinJSBridgeReady", function () {//微信
        play();
     }, false);
-	 flag=false;
-   }
 
   return false;
 
 }
-function finsh(){self.location.reload();}
+function finsh(){
+    $('.pending').hide();
+    lock = false;
+}
+function finsh1(){
+    $('.retry').hide();
+    lock = false;
+}
+function finsh2(){
+    $('.ok').hide();
+    lock = false;
+}
 
 </script>
+<script type="text/javascript">
+ $(function(){
+	 $('#shaked-hand').click(function(){
+		  audioAutoPlay('musicBox');
+		 if (lock) return;
+                    lock = true;
+                    //TODO 相关方法，比如：
+
+                    $.post('/WeChat/Shake/@(ViewContext.RouteData.Values["id"])', {}, function (data) {
+                        if (data == "AUTH")
+                            window.location = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=@WechatBribery.Startup.Config["WeChat:AppId"]&redirect_uri=@Context.Request.Scheme://@Context.Request.Host/WeChatApi/ExchangeCode/@(ViewContext.RouteData.Values["id"])' + '&response_type=code&scope=snsapi_userinfo';
+                        else if (data == "NO") {
+                            setTimeout(function () {
+                                $('.alpha').show();
+                                $('.pending').show();
+                            }, 1300)
+                        } else if (data == "RETRY") {
+                            setTimeout(function () {
+                                $('.alpha').show();
+                                $('.retry').show();
+                            }, 1300);
+                        } else if (data == "EXCEEDED") {
+                            window.location = "/WeChat/Exceeded";
+                        } else {
+                            setTimeout(function () {
+							  $('.ok').show();
+							   document.getElementById("money").innerText = data;
+                               
+                                lock = false;
+                            }, 1300);
+                        }
+                    });		  
+                   
+	})
+	 
+ })
+ </script>
 
 <audio style="display:none;" id="musicBox" preload="metadata"  controls  
  src="~/sounds/shake_sound.mp3">  
  </audio>
  <div class="shake_box" >
-   <div class="shakTop" style="background: url(@img_top)!important;"></div>
-   <div class="shakBottom" style="background: url(@img_bottom)!important;"></div>
+   <div class="shakTop" style="background: url(@img_top) no-repeat;!important; background-size:100% 100%;position : absolute;width : 100%;height: 50%;"></div>
+   <div class="shakBottom" style="background: url(@img_bottom) no-repeat;!important; background-size:100% 100%;position : absolute;width : 100%;height: 50%;"></div>
      @if (Model != null)
      {
         <script>
