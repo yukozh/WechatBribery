@@ -156,5 +156,11 @@ namespace WechatBribery.Controllers
             DB.SaveChanges();
             return RedirectToAction("Activity", "Home", new { id = id });
         }
+
+        public IActionResult AttendCount(Guid id)
+        {
+            var activity = DB.Activities.Single(x => x.Id == id);
+            return Content(activity.Attend.ToString());
+        }
     }
 }

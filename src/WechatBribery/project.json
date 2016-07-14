@@ -11,6 +11,7 @@
     "Microsoft.AspNetCore.Session": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "Pomelo.EntityFrameworkCore.MySql": "1.0.0",
+    "Npgsql.EntityFrameworkCore.PostgreSQL": "1.0.0",
     "Pomelo.AspNetCore.Extensions": "1.0.0",
     "Pomelo.AspNetCore.TimedJob": "1.0.0",
     "Pomelo.Data.Excel": "1.0.0"

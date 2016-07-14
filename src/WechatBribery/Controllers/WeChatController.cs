@@ -1,30 +1,59 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using WechatBribery.Hubs;
+using WechatBribery.Models;
 using static WechatBribery.Common.Wxpay;
 
 namespace WechatBribery.Controllers
 {
     public class WeChatController : BaseController
     {
+        private static Dictionary<string, Activity> dic = new Dictionary<string, Activity>();
+
+        public IActionResult Test()
+        {
+            HttpContext.Session.SetString("OpenId", "oHriRjg5tgcRD5f0jM7la5BMsC18");
+            HttpContext.Session.SetString("AvatarUrl", "http://wx.qlogo.cn/mmopen/bVy2VQVTWzbUP1CS3aEHicwEpYrAUkHNwVibwHdnVuEC6wPhTs9LNepMW32U98CoJHOZahGibQONB2gnuIdvlVc7A/0");
+            HttpContext.Session.SetString("Expire", DateTime.Now.AddDays(1).ToString());
+            HttpContext.Session.SetString("Nickname", "あまみや ゆうこ");
+            return Content("OK");
+        }
+
+        public string Test2()
+        {
+            return "Hello World";
+        }
+
         public IActionResult Index(string id)
         {
             // 判断是否需要授权
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("OpenId")) || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
                 return Redirect("https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + Startup.Config["WeChat:AppId"] + "&redirect_uri=" + HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/WeChatApi/ExchangeCode/" + id + "&response_type=code&scope=snsapi_userinfo");
 
-            var user = DB.Users.Single(x => x.UserName == id);
-            var activity = DB.Activities
-                .Include(x => x.Owner)
-                .Where(x => x.Owner.UserName == user.Id)
-                .LastOrDefault();
-            return View(activity);
+            lock (this)
+            {
+                if (!dic.ContainsKey(id))
+                {
+                    var user = DB.Users.Single(x => x.UserName == id);
+                    var activity = DB.Activities
+                        .Include(x => x.Owner)
+                        .Where(x => x.Owner.UserName == user.Id)
+                        .LastOrDefault();
+                    if (activity != null)
+                        dic.Add(id, activity);
+                }
+            }
+
+            if (dic.ContainsKey(id))
+                return View(null);
+            else
+                return View(dic[id]);
         }
 
         public IActionResult History()
@@ -51,8 +80,15 @@ namespace WechatBribery.Controllers
             
             // 微信平台要求15秒内不能给同一个用户再次发红包
             var cooldown = DateTime.Now.AddSeconds(-15);
-            if (DB.Briberies.Count(x => x.OpenId == HttpContext.Session.GetString("OpenId") && x.ReceivedTime >= cooldown) > 0)
+            try
+            {
+                if (DB.Briberies.Count(x => x.OpenId == HttpContext.Session.GetString("OpenId") && x.ReceivedTime >= cooldown) > 0)
+                    return Content("RETRY");
+            }
+            catch
+            {
                 return Content("RETRY");
+            }
 
             // 判断是否中奖超过每日最大次数
             var beg = DateTime.Now.Date; 
@@ -60,14 +96,23 @@ namespace WechatBribery.Controllers
                 return Content("EXCEEDED");
 
             // 获取活动信息
-            var activity = DB.Activities
-                .Include(x => x.Owner)
-                .FirstOrDefault(x => x.Owner.UserName == id && !x.End.HasValue);
-            if (activity == null)
-                return Content("NO");
+            lock (this)
+            {
+                if (!dic.ContainsKey(id))
+                {
+                    var act = DB.Activities
+                        .Include(x => x.Owner)
+                        .FirstOrDefault(x => x.Owner.UserName == id && !x.End.HasValue);
+                    if (act == null)
+                        return Content("NO");
+                    dic.Add(id, act);
+                }
+            }
+            var activity = dic[id];
 
             // 参与人数缓存
             activity.Attend++;
+            DB.Attach(activity);
             DB.SaveChanges();
             if (activity.Attend % 600 == 0)
                 GC.Collect();
@@ -75,7 +120,7 @@ namespace WechatBribery.Controllers
             // 抽奖
             var rand = new Random();
             var num = rand.Next(0, 10000);
-            if (num <= activity.Ratio * 10000)
+            if (num < activity.Ratio * 10000)
             {
                 var prize = DB.Briberies
                     .Where(x => x.ActivityId == activity.Id && !x.ReceivedTime.HasValue)
@@ -87,6 +132,7 @@ namespace WechatBribery.Controllers
                     DB.SaveChanges();
                     Hub.Clients.Group(activity.Id.ToString()).OnShaked(activity.Attend);
                     Hub.Clients.Group(activity.Id.ToString()).OnActivityEnd();
+                    dic.Remove(id);
                     return Content("RETRY");
                 }
 
@@ -109,6 +155,7 @@ namespace WechatBribery.Controllers
                     {
                         activity.End = DateTime.Now;
                         DB.SaveChanges();
+                        dic.Remove(id);
                         Hub.Clients.Group(activity.Id.ToString()).OnShaked(activity.Attend);
                         Hub.Clients.Group(activity.Id.ToString()).OnActivityEnd();
                     }

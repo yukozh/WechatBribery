@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 
 namespace WechatBribery.Models
@@ -22,6 +23,8 @@ namespace WechatBribery.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.HasPostgresExtension("uuid-ossp");
 
             builder.Entity<Bribery>(e =>
             {
