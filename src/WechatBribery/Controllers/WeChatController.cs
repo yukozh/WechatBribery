@@ -14,7 +14,7 @@ namespace WechatBribery.Controllers
 {
     public class WeChatController : BaseController
     {
-        private static Dictionary<string, Activity> dic = new Dictionary<string, Activity>();
+        public static Dictionary<string, Activity> dic = new Dictionary<string, Activity>();
 
         public IActionResult Test()
         {
@@ -126,7 +126,7 @@ namespace WechatBribery.Controllers
                     .Where(x => x.ActivityId == activity.Id && !x.ReceivedTime.HasValue)
                     .OrderBy(x => Guid.NewGuid())
                     .FirstOrDefault();
-                if (prize == null) // 没有红包了
+                if (prize == null && DB.Briberies.Count(x => x.ActivityId == activity.Id) > 0) // 没有红包了
                 {
                     activity.End = DateTime.Now;
                     DB.SaveChanges();
@@ -151,7 +151,7 @@ namespace WechatBribery.Controllers
                 {
                     DB.ChangeTracker.DetectChanges();
                     // 检查剩余红包数
-                    if (DB.Briberies.Count(x => x.ActivityId == activity.Id && !x.ReceivedTime.HasValue) == 0)
+                    if (DB.Briberies.Count(x => x.ActivityId == activity.Id && !x.ReceivedTime.HasValue) == 0 && DB.Briberies.Count(x => x.ActivityId == activity.Id) > 0)
                     {
                         activity.End = DateTime.Now;
                         DB.SaveChanges();
@@ -173,6 +173,12 @@ namespace WechatBribery.Controllers
 
             return Content("RETRY");
         }
+
+        //public IActionResult ShakeCount(string id, long Count)
+        //{
+        //    // DB.Database.ExecuteSqlCommand("UPDATE \"Activities\" SET \"Attend\" = \"Attend\" + {0} WHERE \"AspNetUsers\".\"UserName\" = {1} AND \"End\" IS NULL", Count, id);
+        //    return Content("ok");
+        //}
 
         public IActionResult Bribery(Guid id)
         {

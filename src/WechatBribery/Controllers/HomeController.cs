@@ -39,6 +39,18 @@ namespace WechatBribery.Controllers
             
             // 检查余额
             var rule = DeserializeObject<List<RuleViewModel>>(Rules);
+            if (rule.Count == 0 || rule.Sum(x => x.Count) == 0)
+                return Prompt(x =>
+                {
+                    x.Title = "创建失败";
+                    x.Details = "您没有设定红包发放规则";
+                });
+            if (rule.Any(x => x.From < 100))
+                return Prompt(x =>
+                {
+                    x.Title = "创建失败";
+                    x.Details = "每个红包金额最少为1元";
+                });
             var total = rule.Sum(x => x.To * x.Count);
             if (total / 100.0 > User.Current.Balance)
                 return Prompt(x =>
@@ -60,7 +72,6 @@ namespace WechatBribery.Controllers
             };
 
             DB.Activities.Add(act);
-            DB.SaveChanges();
 
             // 创建红包
             var random = new Random();
@@ -146,14 +157,20 @@ namespace WechatBribery.Controllers
             Activity act;
             if (User.IsInRole("Root"))
             {
-                act = DB.Activities.Single(x => x.Id == id);
+                act = DB.Activities
+                    .Include(x => x.Owner)
+                    .Single(x => x.Id == id);
             }
             else
             {
-                act = DB.Activities.Single(x => x.Id == id && x.OwnerId == User.Current.Id);
+                act = DB.Activities
+                    .Include(x => x.Owner)
+                    .Single(x => x.Id == id && x.OwnerId == User.Current.Id);
             }
             act.End = DateTime.Now;
             DB.SaveChanges();
+            if (WeChatController.dic.ContainsKey(act.Owner.UserName))
+                WeChatController.dic.Remove(act.Owner.UserName);
             return RedirectToAction("Activity", "Home", new { id = id });
         }
 
