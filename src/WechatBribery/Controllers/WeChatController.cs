@@ -50,7 +50,7 @@ namespace WechatBribery.Controllers
                 }
             }
 
-            if (dic.ContainsKey(id))
+            if (!dic.ContainsKey(id))
                 return View(null);
             else
                 return View(dic[id]);
